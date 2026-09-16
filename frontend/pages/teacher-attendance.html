@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Take Attendance - Attendance Monitoring System</title>
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/attendance.css">
+  <link rel="stylesheet" href="../css/students.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <h2>AMS</h2>
+      <nav>
+        <a href="teacher-dashboard.html">Dashboard</a>
+        <a href="teacher-attendance.html" class="active">Take Attendance</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Take Attendance</h1>
+        <span id="welcomeUser">Welcome!</span>
+      </header>
+
+      <div class="date-bar">
+        <label for="attendanceDate">Select Date:</label>
+        <input type="date" id="attendanceDate">
+        <span id="summaryText"></span>
+      </div>
+
+      <div class="code-generator">
+  <button id="generateCodeBtn" class="btn-primary">Generate Check-In Code</button>
+  <div id="codeDisplay" class="code-display hidden">
+    <span id="codeText"></span>
+    <span id="codeTimer"></span>
+  </div>
+
+
+      <table class="students-table">
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Full Name</th>
+            <th>Year & Section</th>
+            <th>Status</th>
+            <th>Time In</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="attendanceTableBody">
+        </tbody>
+      </table>
+    </main>
+  </div>
+
+  <script src="../js/teacher-attendance.js"></script>
+</body>
+</html>

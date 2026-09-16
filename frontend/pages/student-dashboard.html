@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Attendance - Attendance Monitoring System</title>
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/attendance.css">
+  <link rel="stylesheet" href="../css/students.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <h2>AMS</h2>
+      <nav>
+        <a href="student-dashboard.html" class="active">My Attendance</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <h1>My Attendance Record</h1>
+        <span id="welcomeUser">Welcome!</span>
+      </header>
+
+      <div class="checkin-box">
+  <h3>Enter Check-In Code</h3>
+  <div class="checkin-form">
+    <input type="text" id="checkInCode" placeholder="Enter 6-character code" maxlength="6">
+    <button id="checkInBtn" class="btn-primary">Check In</button>
+  </div>
+  <p id="checkInMessage"></p>
+</div>
+
+      <table class="students-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Time In</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody id="myAttendanceTableBody">
+        </tbody>
+      </table>
+    </main>
+  </div>
+
+  <script src="../js/student-dashboard.js"></script>
+</body>
+</html>

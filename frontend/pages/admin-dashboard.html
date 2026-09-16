@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Attendance Monitoring System</title>
+  <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <h2>AMS</h2>
+      <nav>
+        <a href="#" class="active">Dashboard</a>
+        <a href="student-management.html">Manage Students</a>
+        <a href="attendance.html">Attendance Records</a>
+        <a href="reports.html">Reports</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Admin Dashboard</h1>
+        <span id="welcomeUser">Welcome!</span>
+      </header>
+
+      <section class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Students</h3>
+          <p id="totalStudents">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Present Today</h3>
+          <p id="presentToday">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Absent Today</h3>
+          <p id="absentToday">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Late Today</h3>
+          <p id="lateToday">0</p>
+        </div>
+      </section>
+
+      <section class="recent-activity">
+        <h2>Recent Activity</h2>
+        <p>No recent activity yet. This will populate once attendance records are added.</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/dashboard.js"></script>
+</body>
+</html>

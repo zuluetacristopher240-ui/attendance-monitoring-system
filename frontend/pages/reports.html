@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports - Attendance Monitoring System</title>
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/attendance.css">
+  <link rel="stylesheet" href="../css/students.css">
+  <link rel="stylesheet" href="../css/reports.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <h2>AMS</h2>
+      <nav>
+        <a href="admin-dashboard.html">Dashboard</a>
+        <a href="student-management.html">Manage Students</a>
+        <a href="attendance.html">Attendance Records</a>
+        <a href="reports.html" class="active">Reports</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Attendance Reports</h1>
+        <span id="welcomeUser">Welcome!</span>
+      </header>
+
+      <div class="date-bar">
+        <label for="startDate">From:</label>
+        <input type="date" id="startDate">
+        <label for="endDate">To:</label>
+        <input type="date" id="endDate">
+        <button id="filterBtn" class="btn-primary">Filter</button>
+        <button id="clearFilterBtn" class="btn-secondary">Show All</button>
+      </div>
+
+      <table class="students-table">
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Full Name</th>
+            <th>Year & Section</th>
+            <th>Present</th>
+            <th>Late</th>
+            <th>Absent</th>
+          </tr>
+        </thead>
+        <tbody id="reportsTableBody">
+        </tbody>
+      </table>
+    </main>
+  </div>
+
+  <script src="../js/reports.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Dashboard - Attendance Monitoring System</title>
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/attendance.css">
+  <link rel="stylesheet" href="../css/students.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <h2>AMS</h2>
+      <nav>
+        <a href="teacher-dashboard.html" class="active">Dashboard</a>
+        <a href="teacher-attendance.html">Take Attendance</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Teacher Dashboard</h1>
+        <span id="welcomeUser">Welcome!</span>
+      </header>
+
+      <section class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Students</h3>
+          <p id="totalStudents">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Present Today</h3>
+          <p id="presentToday">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Absent Today</h3>
+          <p id="absentToday">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Late Today</h3>
+          <p id="lateToday">0</p>
+        </div>
+      </section>
+
+      <section class="recent-activity">
+        <h2>Quick Actions</h2>
+        <p>Use "Take Attendance" from the sidebar to mark today's attendance.</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/teacher-dashboard.js"></script>
+</body>
+</html>

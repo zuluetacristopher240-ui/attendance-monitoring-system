@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - Attendance Monitoring System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/login.css">
+</head>
+<body>
+  <div class="page-bg">
+    <div class="floaters">
+      <div class="floater f1">✓</div>
+      <div class="floater f2">✓</div>
+      <div class="floater f3">✓</div>
+      <div class="floater f4">✓</div>
+      <div class="floater f5">✓</div>
+      <div class="floater f6">✓</div>
+      <div class="floater f7">✓</div>
+      <div class="floater f8">✓</div>
+    </div>
+    <div class="hero-glow"></div>
+
+    <div class="login-container page-content">
+      <h2>Create Account</h2>
+      <p class="subtitle">Sign up to get started</p>
+
+      <div class="role-buttons" id="signupRoleButtons">
+        <button type="button" class="role-btn" id="signupTeacherBtn">
+          <span class="role-icon">👩‍🏫</span>
+          Teacher
+        </button>
+        <button type="button" class="role-btn" id="signupStudentBtn">
+          <span class="role-icon">🎓</span>
+          Student
+        </button>
+      </div>
+
+      <form id="signupForm" class="hidden">
+        <input type="hidden" id="signupRole">
+
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
+          <input type="text" id="fullName" required>
+        </div>
+
+        <div id="studentFields" class="hidden">
+          <div class="form-group">
+            <label for="studentId">Student ID</label>
+            <input type="text" id="studentId">
+          </div>
+          <div class="form-group">
+            <label for="yearLevel">Year Level</label>
+            <input type="text" id="yearLevel" placeholder="e.g. 1st Year">
+          </div>
+          <div class="form-group">
+            <label for="section">Section</label>
+            <input type="text" id="section" placeholder="e.g. BSIT-1A">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required>
+        </div>
+
+        <button type="submit">Create Account</button>
+        <p id="signupMessage" class="error"></p>
+        <p class="back-link"><a href="#" id="signupBackBtn">← Back</a></p>
+      </form>
+
+      <p class="admin-link"><a href="login.html">Already have an account? Log in</a></p>
+    </div>
+  </div>
+
+  <script src="../js/signup.js"></script>
+</body>
+</html>

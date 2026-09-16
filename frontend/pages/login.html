@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Attendance Monitoring System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/login.css">
+</head>
+<body>
+
+  <div class="page-bg">
+    <div class="hero-glow"></div>
+    <div class="floaters">
+      <span class="floater f1">✓</span>
+      <span class="floater f2">✓</span>
+      <span class="floater f3">✓</span>
+      <span class="floater f4">✓</span>
+      <span class="floater f5">✓</span>
+      <span class="floater f6">✓</span>
+      <span class="floater f7">✓</span>
+      <span class="floater f8">✓</span>
+    </div>
+
+    <div class="page-content">
+
+      <!-- ROLE SELECTOR (unang makikita) -->
+      <div class="login-container" id="roleSelector">
+        <h2>Welcome back</h2>
+        <p class="subtitle">Please select your role to continue</p>
+
+        <div class="role-buttons">
+          <button class="role-btn" id="teacherRoleBtn">
+            <span class="role-icon">👩‍🏫</span>
+            Teacher
+          </button>
+          <button class="role-btn" id="studentRoleBtn">
+            <span class="role-icon">🎓</span>
+            Student
+          </button>
+        </div>
+
+        <p class="admin-link">Are you an administrator? <a href="#" id="adminRoleLink">Click here</a></p>
+        <p class="admin-link">New here? <a href="signup.html">Create an account</a></p>
+      </div>
+
+      <!-- LOGIN FORM (nakatago muna) -->
+      <div class="login-container hidden" id="loginFormContainer">
+        <h2 id="loginTitle">Login</h2>
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+          </div>
+          <button type="submit">Login</button>
+          <p id="errorMessage" class="error"></p>
+          <p class="back-link"><a href="#" id="backBtn">← Back</a></p>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../js/login.js"></script>
+</body>
+</html>
