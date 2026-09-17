@@ -242,3 +242,33 @@ button:active {
 .hidden {
   display: none;
 }
+
+/* ============ RESPONSIVE (MOBILE) ============ */
+@media (max-width: 480px) {
+  .page-bg {
+    padding: 16px;
+  }
+
+  .login-container {
+    width: 100%;
+    max-width: 360px;
+    padding: 28px 24px;
+  }
+
+  .role-buttons {
+    gap: 10px;
+  }
+
+  .role-btn {
+    padding: 18px 8px;
+    font-size: 13px;
+  }
+
+  .role-icon {
+    font-size: 24px;
+  }
+
+  .login-container h2 {
+    font-size: 19px;
+  }
+}

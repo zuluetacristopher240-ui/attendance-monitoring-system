@@ -43,6 +43,7 @@ h1, h2, h3 {
   padding: 24px 16px;
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
 }
 
 .sidebar h2 {
@@ -97,6 +98,7 @@ h1, h2, h3 {
 .main-content {
   flex: 1;
   padding: 32px 36px;
+  min-width: 0;
 }
 
 .topbar {
@@ -104,6 +106,8 @@ h1, h2, h3 {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .topbar h1 {
@@ -213,4 +217,66 @@ h1, h2, h3 {
 
 .btn-secondary:active {
   transform: scale(0.97);
+}
+
+/* ============ RESPONSIVE (TABLET) ============ */
+@media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ============ RESPONSIVE (MOBILE) ============ */
+@media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .sidebar {
+    width: 100%;
+    padding: 14px 12px;
+  }
+
+  .sidebar h2 {
+    margin-bottom: 14px;
+    font-size: 16px;
+  }
+
+  .sidebar nav {
+    display: flex;
+    overflow-x: auto;
+    gap: 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sidebar nav a {
+    white-space: nowrap;
+    margin-bottom: 0;
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .sidebar nav a::before {
+    display: none;
+  }
+
+  .main-content {
+    padding: 20px 16px;
+  }
+
+  .topbar h1 {
+    font-size: 19px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .stat-card p {
+    font-size: 26px;
+  }
 }

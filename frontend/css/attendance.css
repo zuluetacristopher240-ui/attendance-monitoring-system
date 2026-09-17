@@ -158,3 +158,20 @@
   font-size: 13px;
   font-weight: 500;
 }
+
+
+/* ============ RESPONSIVE (MOBILE) ============ */
+@media (max-width: 768px) {
+  .date-bar {
+    flex-wrap: wrap;
+  }
+
+  #summaryText {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .checkin-form {
+    flex-direction: column;
+  }
+}

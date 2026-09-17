@@ -2,6 +2,14 @@
   margin-bottom: 20px;
 }
 
+/* TABLE WRAPPER — enables horizontal scroll on small screens */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 10px;
+}
+
 /* TABLE */
 .students-table {
   width: 100%;
@@ -80,6 +88,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 16px;
 }
 
 .modal.hidden {
@@ -91,6 +100,7 @@
   padding: 30px;
   border-radius: 14px;
   width: 400px;
+  max-width: 100%;
   animation: modalIn 0.2s ease;
 }
 
@@ -136,4 +146,19 @@
   justify-content: flex-end;
   gap: 10px;
   margin-top: 20px;
+}
+
+/* ============ RESPONSIVE (MOBILE) ============ */
+@media (max-width: 768px) {
+  .students-table th,
+  .students-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .modal-content {
+    padding: 22px;
+    width: calc(100% - 32px);
+  }
 }
