@@ -1,6 +1,8 @@
 const db = require('../config/db');
 
-// GET ATTENDANCE FOR A SPECIFIC DATE (kasama lahat ng students, kahit wala pang record)
+// ============================================
+// GET ATTENDANCE FOR A SPECIFIC DATE
+// ============================================
 exports.getAttendanceByDate = (req, res) => {
   const { date } = req.params;
 
@@ -22,18 +24,35 @@ exports.getAttendanceByDate = (req, res) => {
 
   db.query(query, [date], (err, results) => {
     if (err) {
-      return res.status(500).json({ message: 'Database error.', error: err.message });
+      console.error('getAttendanceByDate error:', err);
+      return res.status(500).json({ message: 'Database error.' });
     }
     res.status(200).json(results);
   });
 };
 
-// MARK ATTENDANCE (Create o Update kung meron na para sa parehong araw)
+// ============================================
+// MARK ATTENDANCE
+// ============================================
 exports.markAttendance = (req, res) => {
   const { student_id, date, status, time_in, remarks } = req.body;
 
-  if (!student_id || !date || !status) {
-    return res.status(400).json({ message: 'student_id, date, and status are required.' });
+  // ✅ Validation
+  const validStatuses = ['present', 'absent', 'late'];
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({ message: 'Invalid status.' });
+  }
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return res.status(400).json({ message: 'Invalid date format.' });
+  }
+
+  if (!Number.isInteger(student_id) || student_id <= 0) {
+    return res.status(400).json({ message: 'Invalid student ID.' });
+  }
+
+  if (time_in && !/^\d{2}:\d{2}:\d{2}$/.test(time_in)) {
+    return res.status(400).json({ message: 'Invalid time format.' });
   }
 
   const query = `
@@ -47,16 +66,28 @@ exports.markAttendance = (req, res) => {
     [student_id, date, status, time_in || null, remarks || null, status, time_in || null, remarks || null],
     (err, result) => {
       if (err) {
-        return res.status(500).json({ message: 'Database error.', error: err.message });
+        console.error('markAttendance error:', err);
+        return res.status(500).json({ message: 'Database error.' });
       }
       res.status(200).json({ message: 'Attendance marked successfully!' });
     }
   );
 };
 
-// GET TODAY'S STATS (para sa dashboard cards)
+// ============================================
+// GET TODAY'S STATS
+// ============================================
+function getTodayInManila() {
+  const now = new Date();
+  const manilaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+  const yyyy = manilaTime.getFullYear();
+  const mm = String(manilaTime.getMonth() + 1).padStart(2, '0');
+  const dd = String(manilaTime.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
 exports.getTodayStats = (req, res) => {
-  const today = new Date().toISOString().split('T')[0];
+  const today = getTodayInManila();
 
   const query = `
     SELECT status, COUNT(*) as count
@@ -67,7 +98,8 @@ exports.getTodayStats = (req, res) => {
 
   db.query(query, [today], (err, results) => {
     if (err) {
-      return res.status(500).json({ message: 'Database error.', error: err.message });
+      console.error('getTodayStats error:', err);
+      return res.status(500).json({ message: 'Database error.' });
     }
 
     const stats = { present: 0, absent: 0, late: 0 };
@@ -77,7 +109,8 @@ exports.getTodayStats = (req, res) => {
 
     db.query('SELECT COUNT(*) as total FROM students', (err2, totalResult) => {
       if (err2) {
-        return res.status(500).json({ message: 'Database error.', error: err2.message });
+        console.error('getTodayStats total error:', err2);
+        return res.status(500).json({ message: 'Database error.' });
       }
       stats.totalStudents = totalResult[0].total;
       res.status(200).json(stats);
@@ -85,7 +118,9 @@ exports.getTodayStats = (req, res) => {
   });
 };
 
-// GET ATTENDANCE SUMMARY PER STUDENT (para sa Reports page)
+// ============================================
+// GET ATTENDANCE SUMMARY PER STUDENT
+// ============================================
 exports.getAttendanceSummary = (req, res) => {
   const { startDate, endDate } = req.query;
 
@@ -114,15 +149,19 @@ exports.getAttendanceSummary = (req, res) => {
 
   db.query(query, params, (err, results) => {
     if (err) {
-      return res.status(500).json({ message: 'Database error.', error: err.message });
+      console.error('getAttendanceSummary error:', err);
+      return res.status(500).json({ message: 'Database error.' });
     }
     res.status(200).json(results);
   });
 };
 
-// GET MY ATTENDANCE (para sa naka-login na student)
+// ============================================
+// ✅ GET MY ATTENDANCE — userId MULA SA TOKEN
+// ============================================
 exports.getMyAttendance = (req, res) => {
-  const { userId } = req.params;
+  // ✅ MULA SA TOKEN, HINDI SA URL!
+  const userId = req.user.id;
 
   const query = `
     SELECT attendance.date, attendance.status, attendance.time_in, attendance.remarks
@@ -134,57 +173,69 @@ exports.getMyAttendance = (req, res) => {
 
   db.query(query, [userId], (err, results) => {
     if (err) {
-      return res.status(500).json({ message: 'Database error.', error: err.message });
+      console.error('getMyAttendance error:', err);
+      return res.status(500).json({ message: 'Database error.' });
     }
     res.status(200).json(results);
   });
 };
 
-// DELETE ATTENDANCE RECORD (para sa "un-mark" kung magkamali)
+// ============================================
+// DELETE ATTENDANCE RECORD
+// ============================================
 exports.deleteAttendance = (req, res) => {
   const { id } = req.params;
   const query = 'DELETE FROM attendance WHERE id = ?';
   db.query(query, [id], (err, result) => {
     if (err) {
-      return res.status(500).json({ message: 'Database error.', error: err.message });
+      console.error('deleteAttendance error:', err);
+      return res.status(500).json({ message: 'Database error.' });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Attendance record not found.' });
     }
     res.status(200).json({ message: 'Attendance record cleared.' });
   });
 };
 
-// GENERATE CHECK-IN CODE (tinatawag ng teacher)
+// ============================================
+// ✅ GENERATE CHECK-IN CODE — teacher_id MULA SA TOKEN
+// ============================================
 exports.generateCode = (req, res) => {
-  const { teacher_id } = req.body;
-
-  if (!teacher_id) {
-    return res.status(400).json({ message: 'teacher_id is required.' });
-  }
+  // ✅ MULA SA TOKEN, HINDI SA BODY!
+  const teacher_id = req.user.id;
 
   const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-  const today = new Date().toISOString().split('T')[0];
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minuto mula ngayon
+  const today = getTodayInManila();
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
   const query = 'INSERT INTO attendance_codes (code, teacher_id, date, expires_at) VALUES (?, ?, ?, ?)';
   db.query(query, [code, teacher_id, today, expiresAt], (err, result) => {
     if (err) {
-      return res.status(500).json({ message: 'Database error.', error: err.message });
+      console.error('generateCode error:', err);
+      return res.status(500).json({ message: 'Database error.' });
     }
     res.status(201).json({ code, expiresAt });
   });
 };
 
-// STUDENT CHECK-IN (tinatawag ng student, gamit ang code)
+// ============================================
+// ✅ STUDENT CHECK-IN — user_id MULA SA TOKEN
+// ============================================
 exports.checkIn = (req, res) => {
-  const { code, user_id } = req.body;
+  const { code } = req.body;
+  // ✅ MULA SA TOKEN, HINDI SA BODY!
+  const user_id = req.user.id;
 
-  if (!code || !user_id) {
-    return res.status(400).json({ message: 'code and user_id are required.' });
+  if (!code) {
+    return res.status(400).json({ message: 'code is required.' });
   }
 
   const codeQuery = 'SELECT * FROM attendance_codes WHERE code = ? ORDER BY created_at DESC LIMIT 1';
   db.query(codeQuery, [code.toUpperCase()], (err, codeResults) => {
     if (err) {
-      return res.status(500).json({ message: 'Database error.', error: err.message });
+      console.error('checkIn code query error:', err);
+      return res.status(500).json({ message: 'Database error.' });
     }
 
     if (codeResults.length === 0) {
@@ -198,11 +249,11 @@ exports.checkIn = (req, res) => {
       return res.status(410).json({ message: 'This code has expired.' });
     }
 
-    // Hanapin ang student record na naka-link sa user_id na ito
     const studentQuery = 'SELECT id FROM students WHERE user_id = ?';
     db.query(studentQuery, [user_id], (err2, studentResults) => {
       if (err2) {
-        return res.status(500).json({ message: 'Database error.', error: err2.message });
+        console.error('checkIn student query error:', err2);
+        return res.status(500).json({ message: 'Database error.' });
       }
 
       if (studentResults.length === 0) {
@@ -220,7 +271,8 @@ exports.checkIn = (req, res) => {
 
       db.query(markQuery, [studentId, codeData.date, timeIn, timeIn], (err3) => {
         if (err3) {
-          return res.status(500).json({ message: 'Database error.', error: err3.message });
+          console.error('checkIn mark error:', err3);
+          return res.status(500).json({ message: 'Database error.' });
         }
         res.status(200).json({ message: 'Checked in successfully! You are marked present.' });
       });

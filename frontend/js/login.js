@@ -1,11 +1,15 @@
+/**
+ * login.js
+ * Login page — role selector + form submission.
+ */
+
 const roleSelector = document.getElementById('roleSelector');
 const loginFormContainer = document.getElementById('loginFormContainer');
 const loginTitle = document.getElementById('loginTitle');
 
-// ITO ANG NAWAWALA DATI — kailangan i-track kung anong role button ang pinindot
 let selectedRole = null;
 
-// PAG-CLICK NG TEACHER BUTTON
+// Teacher role button
 document.getElementById('teacherRoleBtn').addEventListener('click', function() {
   selectedRole = 'teacher';
   loginTitle.textContent = 'Teacher Login';
@@ -13,7 +17,7 @@ document.getElementById('teacherRoleBtn').addEventListener('click', function() {
   loginFormContainer.classList.remove('hidden');
 });
 
-// PAG-CLICK NG STUDENT BUTTON
+// Student role button
 document.getElementById('studentRoleBtn').addEventListener('click', function() {
   selectedRole = 'student';
   loginTitle.textContent = 'Student Login';
@@ -21,7 +25,7 @@ document.getElementById('studentRoleBtn').addEventListener('click', function() {
   loginFormContainer.classList.remove('hidden');
 });
 
-// PAG-CLICK NG ADMIN LINK
+// Admin link
 document.getElementById('adminRoleLink').addEventListener('click', function(e) {
   e.preventDefault();
   selectedRole = 'admin';
@@ -30,7 +34,7 @@ document.getElementById('adminRoleLink').addEventListener('click', function(e) {
   loginFormContainer.classList.remove('hidden');
 });
 
-// PAG-CLICK NG BACK BUTTON
+// Back button
 document.getElementById('backBtn').addEventListener('click', function(e) {
   e.preventDefault();
   loginFormContainer.classList.add('hidden');
@@ -40,39 +44,40 @@ document.getElementById('backBtn').addEventListener('click', function(e) {
   selectedRole = null;
 });
 
-// LOGIN FORM SUBMIT (parehong logic gaya ng dati)
+// Login form submit
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
-  const username = document.getElementById('username').value;
+  const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
   const errorMessage = document.getElementById('errorMessage');
 
-  if (username === '' || password === '') {
+  if (!username || !password) {
     errorMessage.textContent = 'Please fill in all fields.';
+    errorMessage.style.color = '#D64550';
     return;
   }
 
+  if (!selectedRole) {
+    errorMessage.textContent = 'Please select a role first.';
+    errorMessage.style.color = '#D64550';
+    return;
+  }
+
+  const submitBtn = this.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Logging in...';
+
   try {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username, password, role: selectedRole })
+    const data = await API.post('/api/auth/login', {
+      username,
+      password,
+      role: selectedRole
     });
 
-    const data = await response.json();
+    saveAuth(data.token, data.user, 8 * 60 * 60);
 
-    if (!response.ok) {
-      errorMessage.textContent = data.message || 'Login failed.';
-      return;
-    }
-
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-
-    errorMessage.style.color = 'green';
+    errorMessage.style.color = '#2F9E67';
     errorMessage.textContent = 'Login successful! Redirecting...';
 
     setTimeout(() => {
@@ -83,10 +88,13 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
       } else {
         window.location.href = '/pages/student-dashboard.html';
       }
-    }, 1000);
+    }, 800);
 
   } catch (error) {
-    errorMessage.textContent = 'Server error. Please try again.';
-    console.error(error);
+    console.error('Login error:', error);
+    errorMessage.textContent = error.message || 'Login failed.';
+    errorMessage.style.color = '#D64550';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Login';
   }
 });

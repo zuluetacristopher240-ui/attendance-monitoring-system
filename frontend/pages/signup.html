@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sign Up - Attendance Monitoring System">
+  <meta name="theme-color" content="#1B2A4A">
   <title>Sign Up - Attendance Monitoring System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -11,14 +13,14 @@
 <body>
   <div class="page-bg">
     <div class="floaters">
-      <div class="floater f1">✓</div>
-      <div class="floater f2">✓</div>
-      <div class="floater f3">✓</div>
-      <div class="floater f4">✓</div>
-      <div class="floater f5">✓</div>
-      <div class="floater f6">✓</div>
-      <div class="floater f7">✓</div>
-      <div class="floater f8">✓</div>
+      <span class="floater f1">✓</span>
+      <span class="floater f2">✓</span>
+      <span class="floater f3">✓</span>
+      <span class="floater f4">✓</span>
+      <span class="floater f5">✓</span>
+      <span class="floater f6">✓</span>
+      <span class="floater f7">✓</span>
+      <span class="floater f8">✓</span>
     </div>
     <div class="hero-glow"></div>
 
@@ -26,23 +28,25 @@
       <h2>Create Account</h2>
       <p class="subtitle">Sign up to get started</p>
 
+      <!-- ROLE SELECTOR -->
       <div class="role-buttons" id="signupRoleButtons">
-        <button type="button" class="role-btn" id="signupTeacherBtn">
-          <span class="role-icon">👩‍🏫</span>
+        <button type="button" class="role-btn" id="signupTeacherBtn" aria-label="Sign up as Teacher">
+          <span class="role-icon" aria-hidden="true">👩‍🏫</span>
           Teacher
         </button>
-        <button type="button" class="role-btn" id="signupStudentBtn">
-          <span class="role-icon">🎓</span>
+        <button type="button" class="role-btn" id="signupStudentBtn" aria-label="Sign up as Student">
+          <span class="role-icon" aria-hidden="true">🎓</span>
           Student
         </button>
       </div>
 
+      <!-- SIGNUP FORM -->
       <form id="signupForm" class="hidden">
         <input type="hidden" id="signupRole">
 
         <div class="form-group">
           <label for="fullName">Full Name</label>
-          <input type="text" id="fullName" required>
+          <input type="text" id="fullName" autocomplete="name" required>
         </div>
 
         <div id="studentFields" class="hidden">
@@ -62,11 +66,14 @@
 
         <div class="form-group">
           <label for="username">Username</label>
-          <input type="text" id="username" required>
+          <input type="text" id="username" autocomplete="username" required>
         </div>
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" required>
+          <input type="password" id="password" autocomplete="new-password" required>
+          <small style="display: block; color: #999; font-size: 11px; margin-top: 4px;">
+            At least 8 chars, may uppercase, lowercase, at number
+          </small>
         </div>
 
         <button type="submit">Create Account</button>
@@ -78,6 +85,16 @@
     </div>
   </div>
 
+  <noscript>
+    <div style="padding: 40px; text-align: center; background: #D64550; color: white; font-family: Arial;">
+      <h2>JavaScript Required</h2>
+      <p>Please enable JavaScript to use the Attendance Monitoring System.</p>
+    </div>
+  </noscript>
+
+  <script src="../js/utils/api.js"></script>
+  <script src="../js/utils/auth.js"></script>
+  <script src="../js/utils/toast.js"></script>
   <script src="../js/signup.js"></script>
 </body>
 </html>

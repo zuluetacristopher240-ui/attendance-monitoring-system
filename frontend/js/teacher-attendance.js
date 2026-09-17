@@ -1,24 +1,20 @@
-const token = localStorage.getItem('token');
-const user = JSON.parse(localStorage.getItem('user'));
+/**
+ * teacher-attendance.js
+ * Teacher "Take Attendance" logic with live polling.
+ */
 
-if (!token || !user || user.role !== 'teacher') {
-  window.location.href = '/pages/login.html';
-} else {
-  document.getElementById('welcomeUser').textContent = `Welcome, ${user.full_name}!`;
-}
+// ✅ Auth check — teacher lang
+const user = requireAuth(['teacher']);
+if (!user) throw new Error('Not authenticated');
 
-document.getElementById('logoutBtn').addEventListener('click', function(e) {
-  e.preventDefault();
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  window.location.href = '/pages/login.html';
-});
+setupLogout();
 
 const dateInput = document.getElementById('attendanceDate');
 const tableBody = document.getElementById('attendanceTableBody');
 const summaryText = document.getElementById('summaryText');
 
 let lastKnownTimeIn = {};
+let pollInterval = null;
 
 function getTodayDate() {
   const today = new Date();
@@ -30,32 +26,24 @@ function getTodayDate() {
 
 dateInput.value = getTodayDate();
 
-function showToast(message) {
-  const container = document.getElementById('toastContainer');
-  if (!container) return;
-
-  const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.textContent = message;
-  container.appendChild(toast);
-
-  setTimeout(() => {
-    toast.classList.add('toast-out');
-    setTimeout(() => toast.remove(), 300);
-  }, 4000);
-}
-
+// ✅ Load attendance
 async function loadAttendance(notify = false) {
   const selectedDate = dateInput.value;
 
   try {
-    const response = await fetch(`/api/attendance/${selectedDate}`);
-    const students = await response.json();
+    const students = await API.get(`/api/attendance/${selectedDate}`);
 
     tableBody.innerHTML = '';
 
-    if (students.length === 0) {
-      tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: #999;">No students found.</td></tr>';
+    if (!students || students.length === 0) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align: center; padding: 40px 20px;">
+            <div style="font-size: 48px; margin-bottom: 12px;">📭</div>
+            <p style="color: #666; font-size: 15px; font-weight: 500;">No students found</p>
+          </td>
+        </tr>
+      `;
       summaryText.textContent = '';
       return;
     }
@@ -73,8 +61,9 @@ async function loadAttendance(notify = false) {
 
       newTimeIn[student.student_id] = student.time_in;
 
+      // ✅ Toast kung may bagong check-in
       if (notify && student.time_in && student.time_in !== lastKnownTimeIn[student.student_id]) {
-        showToast(`✓ ${student.full_name} checked in at ${student.time_in}`);
+        showToast(`✓ ${student.full_name} checked in at ${student.time_in}`, 'present');
       }
 
       let badgeClass = 'status-none';
@@ -85,15 +74,15 @@ async function loadAttendance(notify = false) {
 
       const row = document.createElement('tr');
       row.innerHTML = `
-        <td>${student.student_number}</td>
-        <td>${student.full_name}</td>
-        <td>${student.year_level} - ${student.section}</td>
+        <td>${escapeHtml(student.student_number)}</td>
+        <td>${escapeHtml(student.full_name)}</td>
+        <td>${escapeHtml(student.year_level)} - ${escapeHtml(student.section)}</td>
         <td><span class="status-badge ${badgeClass}">${badgeText}</span></td>
-        <td>${student.time_in || '-'}</td>
+        <td>${escapeHtml(student.time_in) || '-'}</td>
         <td class="attendance-actions">
-          <button class="btn-present" onclick="markStudent(${student.student_id}, 'present')">Present</button>
-          <button class="btn-late" onclick="markStudent(${student.student_id}, 'late')">Late</button>
-          <button class="btn-absent" onclick="markStudent(${student.student_id}, 'absent')">Absent</button>
+          <button class="btn-present" data-student-id="${student.student_id}" data-status="present">Present</button>
+          <button class="btn-late" data-student-id="${student.student_id}" data-status="late">Late</button>
+          <button class="btn-absent" data-student-id="${student.student_id}" data-status="absent">Absent</button>
         </td>
       `;
       tableBody.appendChild(row);
@@ -107,6 +96,7 @@ async function loadAttendance(notify = false) {
   }
 }
 
+// ✅ Mark student
 async function markStudent(studentId, status) {
   const selectedDate = dateInput.value;
 
@@ -117,54 +107,60 @@ async function markStudent(studentId, status) {
   }
 
   try {
-    const response = await fetch('/api/attendance', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        student_id: studentId,
-        date: selectedDate,
-        status: status,
-        time_in: timeIn
-      })
+    await API.post('/api/attendance', {
+      student_id: studentId,
+      date: selectedDate,
+      status: status,
+      time_in: timeIn
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      alert(data.message || 'Something went wrong.');
-      return;
-    }
-
     loadAttendance(false);
+
   } catch (error) {
     console.error('Error marking attendance:', error);
-    alert('Server error. Please try again.');
+    showToast(error.message, 'absent');
   }
 }
 
+// ✅ Event delegation
+tableBody.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-status]');
+  if (!btn) return;
+
+  const studentId = parseInt(btn.dataset.studentId, 10);
+  const status = btn.dataset.status;
+
+  markStudent(studentId, status);
+});
+
 dateInput.addEventListener('change', () => loadAttendance(false));
+
+// ✅ Initial load
 loadAttendance(false);
 
-setInterval(() => {
+// ✅ Auto-refresh every 5 seconds (kung today ang selected date)
+pollInterval = setInterval(() => {
+  if (document.hidden) return;
   if (dateInput.value === getTodayDate()) {
     loadAttendance(true);
   }
 }, 5000);
 
+// ✅ Clear interval kapag mag-navigate
+window.addEventListener('beforeunload', () => {
+  if (pollInterval) clearInterval(pollInterval);
+});
+
+// ✅ Generate Check-In Code
 document.getElementById('generateCodeBtn').addEventListener('click', async function() {
+  const btn = this;
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+
   try {
-    const response = await fetch('/api/attendance/generate-code', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ teacher_id: user.id })
+    const data = await API.post('/api/attendance/generate-code', {
+      teacher_id: user.id
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      alert(data.message || 'Failed to generate code.');
-      return;
-    }
 
     const codeDisplay = document.getElementById('codeDisplay');
     const codeText = document.getElementById('codeText');
@@ -191,6 +187,9 @@ document.getElementById('generateCodeBtn').addEventListener('click', async funct
 
   } catch (error) {
     console.error('Error generating code:', error);
-    alert('Server error. Please try again.');
+    showToast(error.message, 'absent');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Generate Check-In Code';
   }
 });

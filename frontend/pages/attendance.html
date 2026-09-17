@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Attendance Records - Attendance Monitoring System">
+  <meta name="theme-color" content="#1B2A4A">
   <title>Attendance Monitoring - Attendance Monitoring System</title>
   <link rel="stylesheet" href="../css/dashboard.css">
   <link rel="stylesheet" href="../css/attendance.css">
@@ -34,23 +36,43 @@
 
       <div class="table-wrapper">
         <table class="students-table">
-        <thead>
-          <tr>
-            <th>Student ID</th>
-            <th>Full Name</th>
-            <th>Year & Section</th>
-            <th>Status</th>
-            <th>Time In</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="attendanceTableBody">
-        </tbody>
-      </table>
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Full Name</th>
+              <th>Year & Section</th>
+              <th>Status</th>
+              <th>Time In</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="attendanceTableBody">
+            <tr class="loading-row">
+              <td colspan="6" style="text-align: center; padding: 40px;">
+                <div class="spinner"></div>
+                <p style="color: #999; margin-top: 10px;">Loading attendance...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </main>
   </div>
 
+  <noscript>
+    <div style="padding: 40px; text-align: center; background: #D64550; color: white; font-family: Arial;">
+      <h2>JavaScript Required</h2>
+      <p>Please enable JavaScript to use the Attendance Monitoring System.</p>
+    </div>
+  </noscript>
+
+  <!-- Utils — LOAD FIRST -->
+  <script src="../js/utils/escapeHtml.js"></script>
+  <script src="../js/utils/api.js"></script>
+  <script src="../js/utils/auth.js"></script>
+  <script src="../js/utils/toast.js"></script>
+
+  <!-- Page-specific -->
   <script src="../js/attendance.js"></script>
 </body>
 </html>

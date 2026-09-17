@@ -1,26 +1,20 @@
-// I-check kung naka-login
-const token = localStorage.getItem('token');
-const user = JSON.parse(localStorage.getItem('user'));
+/**
+ * attendance.js
+ * Admin/Teacher attendance monitoring logic.
+ */
 
-if (!token || !user) {
-  window.location.href = '/pages/login.html';
-} else {
-  document.getElementById('welcomeUser').textContent = `Welcome, ${user.full_name}!`;
-}
+// ✅ Auth check — admin o teacher
+const user = requireAuth(['admin', 'teacher']);
+if (!user) throw new Error('Not authenticated');
 
-// Logout
-document.getElementById('logoutBtn').addEventListener('click', function(e) {
-  e.preventDefault();
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  window.location.href = '/pages/login.html';
-});
+// ✅ Setup logout
+setupLogout();
 
 const dateInput = document.getElementById('attendanceDate');
 const tableBody = document.getElementById('attendanceTableBody');
 const summaryText = document.getElementById('summaryText');
 
-// I-SET ANG DEFAULT DATE PAPUNTA SA NGAYON
+// ✅ Helper: today's date
 function getTodayDate() {
   const today = new Date();
   const yyyy = today.getFullYear();
@@ -31,18 +25,27 @@ function getTodayDate() {
 
 dateInput.value = getTodayDate();
 
-// I-LOAD ANG ATTENDANCE PARA SA PINILING PETSA
+// ✅ Load attendance for selected date
 async function loadAttendance() {
   const selectedDate = dateInput.value;
 
   try {
-    const response = await fetch(`/api/attendance/${selectedDate}`);
-    const students = await response.json();
+    const students = await API.get(`/api/attendance/${selectedDate}`);
 
     tableBody.innerHTML = '';
 
-    if (students.length === 0) {
-      tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: #999;">No students found. Add students first.</td></tr>';
+    if (!students || students.length === 0) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align: center; padding: 40px 20px;">
+            <div style="font-size: 48px; margin-bottom: 12px;">📭</div>
+            <p style="color: #666; font-size: 15px; font-weight: 500;">No students found</p>
+            <p style="color: #999; font-size: 13px; margin-top: 4px;">
+              Add students first to start tracking attendance.
+            </p>
+          </td>
+        </tr>
+      `;
       summaryText.textContent = '';
       return;
     }
@@ -50,7 +53,7 @@ async function loadAttendance() {
     let presentCount = 0, absentCount = 0, lateCount = 0, noneCount = 0;
 
     students.forEach(student => {
-      const status = student.status; // 'present', 'absent', 'late', o null
+      const status = student.status;
 
       if (status === 'present') presentCount++;
       else if (status === 'absent') absentCount++;
@@ -65,15 +68,15 @@ async function loadAttendance() {
 
       const row = document.createElement('tr');
       row.innerHTML = `
-        <td>${student.student_number}</td>
-        <td>${student.full_name}</td>
-        <td>${student.year_level} - ${student.section}</td>
+        <td>${escapeHtml(student.student_number)}</td>
+        <td>${escapeHtml(student.full_name)}</td>
+        <td>${escapeHtml(student.year_level)} - ${escapeHtml(student.section)}</td>
         <td><span class="status-badge ${badgeClass}">${badgeText}</span></td>
-        <td>${student.time_in || '-'}</td>
+        <td>${escapeHtml(student.time_in) || '-'}</td>
         <td class="attendance-actions">
-          <button class="btn-present" onclick="markStudent(${student.student_id}, 'present')">Present</button>
-          <button class="btn-late" onclick="markStudent(${student.student_id}, 'late')">Late</button>
-          <button class="btn-absent" onclick="markStudent(${student.student_id}, 'absent')">Absent</button>
+          <button class="btn-present" data-student-id="${student.student_id}" data-status="present">Present</button>
+          <button class="btn-late" data-student-id="${student.student_id}" data-status="late">Late</button>
+          <button class="btn-absent" data-student-id="${student.student_id}" data-status="absent">Absent</button>
         </td>
       `;
       tableBody.appendChild(row);
@@ -83,47 +86,55 @@ async function loadAttendance() {
 
   } catch (error) {
     console.error('Error loading attendance:', error);
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align: center; padding: 20px; color: #D64550;">
+          ${escapeHtml(error.message)}
+        </td>
+      </tr>
+    `;
   }
 }
 
-// I-MARK ANG STUDENT (tinatawag mula sa Present/Late/Absent buttons)
+// ✅ Mark student — gamit ang API helper
 async function markStudent(studentId, status) {
   const selectedDate = dateInput.value;
 
   let timeIn = null;
   if (status === 'present' || status === 'late') {
     const now = new Date();
-    timeIn = now.toTimeString().split(' ')[0]; // format: HH:MM:SS
+    timeIn = now.toTimeString().split(' ')[0];
   }
 
   try {
-    const response = await fetch('/api/attendance', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        student_id: studentId,
-        date: selectedDate,
-        status: status,
-        time_in: timeIn
-      })
+    await API.post('/api/attendance', {
+      student_id: studentId,
+      date: selectedDate,
+      status: status,
+      time_in: timeIn
     });
 
-    const data = await response.json();
+    loadAttendance();
 
-    if (!response.ok) {
-      alert(data.message || 'Something went wrong.');
-      return;
-    }
-
-    loadAttendance(); // I-refresh ang table
   } catch (error) {
     console.error('Error marking attendance:', error);
-    alert('Server error. Please try again.');
+    showToast(error.message, 'absent');
   }
 }
 
-// PAG PALITAN ANG PETSA, I-RELOAD ANG TABLE
+// ✅ Event delegation para sa mark buttons
+tableBody.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-status]');
+  if (!btn) return;
+
+  const studentId = parseInt(btn.dataset.studentId, 10);
+  const status = btn.dataset.status;
+
+  markStudent(studentId, status);
+});
+
+// ✅ Reload sa date change
 dateInput.addEventListener('change', loadAttendance);
 
-// I-LOAD ANG ATTENDANCE PAGKA-BUKAS NG PAGE
+// ✅ Initial load
 loadAttendance();

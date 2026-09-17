@@ -1,7 +1,14 @@
+/**
+ * signup.js
+ * Signup page — role selector + registration form.
+ */
+
 const signupRoleButtons = document.getElementById('signupRoleButtons');
 const signupForm = document.getElementById('signupForm');
 const studentFields = document.getElementById('studentFields');
+const message = document.getElementById('signupMessage');
 
+// Teacher button
 document.getElementById('signupTeacherBtn').addEventListener('click', function() {
   document.getElementById('signupRole').value = 'teacher';
   studentFields.classList.add('hidden');
@@ -12,6 +19,7 @@ document.getElementById('signupTeacherBtn').addEventListener('click', function()
   signupForm.classList.remove('hidden');
 });
 
+// Student button
 document.getElementById('signupStudentBtn').addEventListener('click', function() {
   document.getElementById('signupRole').value = 'student';
   studentFields.classList.remove('hidden');
@@ -22,47 +30,59 @@ document.getElementById('signupStudentBtn').addEventListener('click', function()
   signupForm.classList.remove('hidden');
 });
 
+// Back button
 document.getElementById('signupBackBtn').addEventListener('click', function(e) {
   e.preventDefault();
   signupForm.classList.add('hidden');
   signupRoleButtons.classList.remove('hidden');
   signupForm.reset();
-  document.getElementById('signupMessage').textContent = '';
+  message.textContent = '';
 });
 
+// Form submit
 signupForm.addEventListener('submit', async function(e) {
   e.preventDefault();
 
-  const message = document.getElementById('signupMessage');
+  message.style.color = '#D64550';
+
   const role = document.getElementById('signupRole').value;
 
-  const payload = {
-    username: document.getElementById('username').value,
-    password: document.getElementById('password').value,
-    role: role,
-    full_name: document.getElementById('fullName').value
-  };
-
-  if (role === 'student') {
-    payload.student_id = document.getElementById('studentId').value;
-    payload.year_level = document.getElementById('yearLevel').value;
-    payload.section = document.getElementById('section').value;
+  if (!role) {
+    message.textContent = 'Please select a role first.';
+    return;
   }
 
-  try {
-    const response = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+  const payload = {
+    username: document.getElementById('username').value.trim(),
+    password: document.getElementById('password').value,
+    role: role,
+    full_name: document.getElementById('fullName').value.trim()
+  };
 
-    const data = await response.json();
+  // Validation
+  if (!payload.username || !payload.password || !payload.full_name) {
+    message.textContent = 'Please fill in all fields.';
+    return;
+  }
 
-    if (!response.ok) {
-      message.style.color = '#D64550';
-      message.textContent = data.message || 'Sign up failed.';
+  // Student-specific fields
+  if (role === 'student') {
+    payload.student_id = document.getElementById('studentId').value.trim();
+    payload.year_level = document.getElementById('yearLevel').value.trim();
+    payload.section = document.getElementById('section').value.trim();
+
+    if (!payload.student_id || !payload.year_level || !payload.section) {
+      message.textContent = 'Please fill in all student fields.';
       return;
     }
+  }
+
+  const submitBtn = this.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Creating account...';
+
+  try {
+    await API.post('/api/auth/register', payload);
 
     message.style.color = '#2F9E67';
     message.textContent = 'Account created! Redirecting to login...';
@@ -72,8 +92,10 @@ signupForm.addEventListener('submit', async function(e) {
     }, 1200);
 
   } catch (error) {
+    console.error('Signup error:', error);
+    message.textContent = error.message || 'Sign up failed.';
     message.style.color = '#D64550';
-    message.textContent = 'Server error. Please try again.';
-    console.error(error);
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Create Account';
   }
 });
