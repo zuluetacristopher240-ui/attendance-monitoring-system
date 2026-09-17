@@ -18,6 +18,8 @@ const dateInput = document.getElementById('attendanceDate');
 const tableBody = document.getElementById('attendanceTableBody');
 const summaryText = document.getElementById('summaryText');
 
+let lastKnownTimeIn = {};
+
 function getTodayDate() {
   const today = new Date();
   const yyyy = today.getFullYear();
@@ -28,7 +30,22 @@ function getTodayDate() {
 
 dateInput.value = getTodayDate();
 
-async function loadAttendance() {
+function showToast(message) {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add('toast-out');
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
+async function loadAttendance(notify = false) {
   const selectedDate = dateInput.value;
 
   try {
@@ -44,6 +61,7 @@ async function loadAttendance() {
     }
 
     let presentCount = 0, absentCount = 0, lateCount = 0, noneCount = 0;
+    const newTimeIn = {};
 
     students.forEach(student => {
       const status = student.status;
@@ -52,6 +70,12 @@ async function loadAttendance() {
       else if (status === 'absent') absentCount++;
       else if (status === 'late') lateCount++;
       else noneCount++;
+
+      newTimeIn[student.student_id] = student.time_in;
+
+      if (notify && student.time_in && student.time_in !== lastKnownTimeIn[student.student_id]) {
+        showToast(`✓ ${student.full_name} checked in at ${student.time_in}`);
+      }
 
       let badgeClass = 'status-none';
       let badgeText = 'Not Marked';
@@ -75,6 +99,7 @@ async function loadAttendance() {
       tableBody.appendChild(row);
     });
 
+    lastKnownTimeIn = newTimeIn;
     summaryText.textContent = `Present: ${presentCount} | Late: ${lateCount} | Absent: ${absentCount} | Not Marked: ${noneCount}`;
 
   } catch (error) {
@@ -110,15 +135,21 @@ async function markStudent(studentId, status) {
       return;
     }
 
-    loadAttendance();
+    loadAttendance(false);
   } catch (error) {
     console.error('Error marking attendance:', error);
     alert('Server error. Please try again.');
   }
 }
 
-dateInput.addEventListener('change', loadAttendance);
-loadAttendance();
+dateInput.addEventListener('change', () => loadAttendance(false));
+loadAttendance(false);
+
+setInterval(() => {
+  if (dateInput.value === getTodayDate()) {
+    loadAttendance(true);
+  }
+}, 5000);
 
 document.getElementById('generateCodeBtn').addEventListener('click', async function() {
   try {
@@ -142,7 +173,7 @@ document.getElementById('generateCodeBtn').addEventListener('click', async funct
     codeText.textContent = data.code;
     codeDisplay.classList.remove('hidden');
 
-    let secondsLeft = 300; // 5 minuto = 300 segundo
+    let secondsLeft = 300;
     codeTimer.textContent = `Expires in 5:00`;
 
     const interval = setInterval(() => {
@@ -154,7 +185,7 @@ document.getElementById('generateCodeBtn').addEventListener('click', async funct
       if (secondsLeft <= 0) {
         clearInterval(interval);
         codeDisplay.classList.add('hidden');
-        loadAttendance(); // i-refresh para makita kung sino ang na-check in
+        loadAttendance(false);
       }
     }, 1000);
 

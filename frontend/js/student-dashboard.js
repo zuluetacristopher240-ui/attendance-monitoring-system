@@ -15,7 +15,32 @@ document.getElementById('logoutBtn').addEventListener('click', function(e) {
   window.location.href = '/pages/login.html';
 });
 
-async function loadMyAttendance() {
+let lastKnownStatus = null;
+
+function getTodayDate() {
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function showToast(message, type = 'present') {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add('toast-out');
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
+async function loadMyAttendance(notify = false) {
   const tableBody = document.getElementById('myAttendanceTableBody');
 
   try {
@@ -28,6 +53,14 @@ async function loadMyAttendance() {
       tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color: #999;">No attendance records yet.</td></tr>';
       return;
     }
+
+    const todayRecord = records.find(r => r.date === getTodayDate() || (r.date && r.date.split('T')[0] === getTodayDate()));
+
+    if (notify && todayRecord && todayRecord.status && todayRecord.status !== lastKnownStatus && lastKnownStatus !== null) {
+      const labelMap = { present: 'marked Present', late: 'marked Late', absent: 'marked Absent' };
+      showToast(`Your teacher ${labelMap[todayRecord.status] || 'updated your status'} today.`, todayRecord.status);
+    }
+    lastKnownStatus = todayRecord ? todayRecord.status : lastKnownStatus;
 
     records.forEach(record => {
       let badgeClass = 'status-none';
@@ -50,7 +83,11 @@ async function loadMyAttendance() {
   }
 }
 
-loadMyAttendance();
+loadMyAttendance(false);
+
+setInterval(() => {
+  loadMyAttendance(true);
+}, 5000);
 
 document.getElementById('checkInBtn').addEventListener('click', async function() {
   const code = document.getElementById('checkInCode').value.trim();
@@ -80,7 +117,7 @@ document.getElementById('checkInBtn').addEventListener('click', async function()
     message.textContent = data.message;
     message.style.color = '#2F9E67';
     document.getElementById('checkInCode').value = '';
-    loadMyAttendance(); // i-refresh ang table
+    loadMyAttendance(false);
   } catch (error) {
     console.error('Error checking in:', error);
     message.textContent = 'Server error. Please try again.';
