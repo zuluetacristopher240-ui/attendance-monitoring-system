@@ -1,7 +1,6 @@
 const token = localStorage.getItem('token');
 const user = JSON.parse(localStorage.getItem('user'));
 
-// I-PROTECT ANG PAGE — student lang ang makaka-access
 if (!token || !user || user.role !== 'student') {
   window.location.href = '/pages/login.html';
 } else {
@@ -16,6 +15,7 @@ document.getElementById('logoutBtn').addEventListener('click', function(e) {
 });
 
 let lastKnownStatus = null;
+let hasInitialized = false;
 
 function getTodayDate() {
   const today = new Date();
@@ -51,16 +51,22 @@ async function loadMyAttendance(notify = false) {
 
     if (records.length === 0) {
       tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color: #999;">No attendance records yet.</td></tr>';
+      if (notify && hasInitialized) {
+        // wala pang record, walang notify
+      }
+      hasInitialized = true;
       return;
     }
 
-    const todayRecord = records.find(r => r.date === getTodayDate() || (r.date && r.date.split('T')[0] === getTodayDate()));
+    const todayRecord = records.find(r => r.date && r.date.split('T')[0] === getTodayDate());
+    const todayStatus = todayRecord ? todayRecord.status : null;
 
-    if (notify && todayRecord && todayRecord.status && todayRecord.status !== lastKnownStatus && lastKnownStatus !== null) {
+    if (notify && hasInitialized && todayStatus && todayStatus !== lastKnownStatus) {
       const labelMap = { present: 'marked Present', late: 'marked Late', absent: 'marked Absent' };
-      showToast(`Your teacher ${labelMap[todayRecord.status] || 'updated your status'} today.`, todayRecord.status);
+      showToast(`Your teacher ${labelMap[todayStatus] || 'updated your status'} today.`, todayStatus);
     }
-    lastKnownStatus = todayRecord ? todayRecord.status : lastKnownStatus;
+    lastKnownStatus = todayStatus;
+    hasInitialized = true;
 
     records.forEach(record => {
       let badgeClass = 'status-none';
