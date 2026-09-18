@@ -1,6 +1,6 @@
 /**
  * teacher-attendance.js
- * Teacher "Take Attendance" logic with live polling.
+ * Teacher "Take Attendance" logic with class/subject selection.
  */
 
 // ✅ Auth check — teacher lang
@@ -13,8 +13,14 @@ const dateInput = document.getElementById('attendanceDate');
 const tableBody = document.getElementById('attendanceTableBody');
 const summaryText = document.getElementById('summaryText');
 
+const classSelect = document.getElementById('classSelect');
+const subjectSelect = document.getElementById('subjectSelect');
+const startTimeInput = document.getElementById('startTime');
+const endTimeInput = document.getElementById('endTime');
+
 let lastKnownTimeIn = {};
 let pollInterval = null;
+let codeCountdownInterval = null;
 
 function getTodayDate() {
   const today = new Date();
@@ -26,7 +32,80 @@ function getTodayDate() {
 
 dateInput.value = getTodayDate();
 
-// ✅ Load attendance
+// ============================================
+// ✅ LOAD CLASSES (teacher)
+// ============================================
+async function loadClasses() {
+  try {
+    const classes = await API.get('/api/classes/my');
+
+    classSelect.innerHTML = '<option value="">-- Select Class --</option>';
+
+    if (!classes || classes.length === 0) {
+      classSelect.innerHTML = '<option value="">No classes found</option>';
+      return;
+    }
+
+    classes.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = `${c.class_code} — ${c.class_name}`;
+      classSelect.appendChild(opt);
+    });
+
+  } catch (error) {
+    console.error('Error loading classes:', error);
+    showToast(error.message, 'absent');
+  }
+}
+
+// ============================================
+// ✅ LOAD SUBJECTS (per class)
+// ============================================
+async function loadSubjects(classId) {
+  subjectSelect.innerHTML = '<option value="">Loading...</option>';
+  subjectSelect.disabled = true;
+
+  try {
+    const subjects = await API.get(`/api/classes/${classId}/subjects`);
+
+    subjectSelect.innerHTML = '<option value="">-- Select Subject --</option>';
+
+    if (!subjects || subjects.length === 0) {
+      subjectSelect.innerHTML = '<option value="">No subjects found</option>';
+      return;
+    }
+
+    subjects.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.id;
+      opt.textContent = `${s.subject_code} — ${s.subject_name}`;
+      subjectSelect.appendChild(opt);
+    });
+
+    subjectSelect.disabled = false;
+
+  } catch (error) {
+    console.error('Error loading subjects:', error);
+    subjectSelect.innerHTML = '<option value="">Error loading subjects</option>';
+    showToast(error.message, 'absent');
+  }
+}
+
+// ✅ Pag-pili ng class → load subjects
+classSelect.addEventListener('change', function() {
+  const classId = this.value;
+  if (!classId) {
+    subjectSelect.innerHTML = '<option value="">-- Select Class First --</option>';
+    subjectSelect.disabled = true;
+    return;
+  }
+  loadSubjects(classId);
+});
+
+// ============================================
+// ✅ LOAD ATTENDANCE
+// ============================================
 async function loadAttendance(notify = false) {
   const selectedDate = dateInput.value;
 
@@ -61,7 +140,6 @@ async function loadAttendance(notify = false) {
 
       newTimeIn[student.student_id] = student.time_in;
 
-      // ✅ Toast kung may bagong check-in
       if (notify && student.time_in && student.time_in !== lastKnownTimeIn[student.student_id]) {
         showToast(`✓ ${student.full_name} checked in at ${student.time_in}`, 'present');
       }
@@ -96,7 +174,9 @@ async function loadAttendance(notify = false) {
   }
 }
 
-// ✅ Mark student
+// ============================================
+// ✅ MARK STUDENT
+// ============================================
 async function markStudent(studentId, status) {
   const selectedDate = dateInput.value;
 
@@ -138,7 +218,7 @@ dateInput.addEventListener('change', () => loadAttendance(false));
 // ✅ Initial load
 loadAttendance(false);
 
-// ✅ Auto-refresh every 5 seconds (kung today ang selected date)
+// ✅ Auto-refresh every 5 seconds
 pollInterval = setInterval(() => {
   if (document.hidden) return;
   if (dateInput.value === getTodayDate()) {
@@ -146,20 +226,49 @@ pollInterval = setInterval(() => {
   }
 }, 5000);
 
-// ✅ Clear interval kapag mag-navigate
 window.addEventListener('beforeunload', () => {
   if (pollInterval) clearInterval(pollInterval);
+  if (codeCountdownInterval) clearInterval(codeCountdownInterval);
 });
 
-// ✅ Generate Check-In Code
+// ============================================
+// ✅ GENERATE CHECK-IN CODE (UPDATED)
+// ============================================
 document.getElementById('generateCodeBtn').addEventListener('click', async function() {
   const btn = this;
+
+  const classId = classSelect.value;
+  const subjectId = subjectSelect.value;
+  const startTime = startTimeInput.value;
+  const endTime = endTimeInput.value;
+
+  // ✅ Validation
+  if (!classId) {
+    showToast('Please select a class.', 'late');
+    return;
+  }
+  if (!subjectId) {
+    showToast('Please select a subject.', 'late');
+    return;
+  }
+  if (!startTime || !endTime) {
+    showToast('Please set start time and end time.', 'late');
+    return;
+  }
+  if (startTime >= endTime) {
+    showToast('End time must be after start time.', 'late');
+    return;
+  }
+
   btn.disabled = true;
   btn.textContent = 'Generating...';
 
   try {
     const data = await API.post('/api/attendance/generate-code', {
-      teacher_id: user.id
+      class_id: parseInt(classId, 10),
+      subject_id: parseInt(subjectId, 10),
+      start_time: startTime,
+      end_time: endTime
     });
 
     const codeDisplay = document.getElementById('codeDisplay');
@@ -169,21 +278,25 @@ document.getElementById('generateCodeBtn').addEventListener('click', async funct
     codeText.textContent = data.code;
     codeDisplay.classList.remove('hidden');
 
-    let secondsLeft = 300;
-    codeTimer.textContent = `Expires in 5:00`;
+    // ✅ 10-minute countdown (600 seconds)
+    let secondsLeft = 600;
+    codeTimer.textContent = `Expires in 10:00`;
 
-    const interval = setInterval(() => {
+    if (codeCountdownInterval) clearInterval(codeCountdownInterval);
+    codeCountdownInterval = setInterval(() => {
       secondsLeft--;
       const mins = Math.floor(secondsLeft / 60);
       const secs = secondsLeft % 60;
       codeTimer.textContent = `Expires in ${mins}:${secs.toString().padStart(2, '0')}`;
 
       if (secondsLeft <= 0) {
-        clearInterval(interval);
+        clearInterval(codeCountdownInterval);
         codeDisplay.classList.add('hidden');
         loadAttendance(false);
       }
     }, 1000);
+
+    showToast(`Code generated: ${data.code}`, 'present');
 
   } catch (error) {
     console.error('Error generating code:', error);
@@ -193,3 +306,6 @@ document.getElementById('generateCodeBtn').addEventListener('click', async funct
     btn.textContent = 'Generate Check-In Code';
   }
 });
+
+// ✅ Initial load ng classes
+loadClasses();

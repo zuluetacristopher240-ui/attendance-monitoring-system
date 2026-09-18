@@ -1,6 +1,30 @@
 const db = require('../config/db');
 
 // ============================================
+// HELPER: Today's date in Manila timezone
+// ============================================
+function getTodayInManila() {
+  const now = new Date();
+  const manilaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+  const yyyy = manilaTime.getFullYear();
+  const mm = String(manilaTime.getMonth() + 1).padStart(2, '0');
+  const dd = String(manilaTime.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+// ============================================
+// HELPER: Current time in Manila (HH:MM:SS)
+// ============================================
+function getNowTimeInManila() {
+  const now = new Date();
+  const manilaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+  const hh = String(manilaTime.getHours()).padStart(2, '0');
+  const mm = String(manilaTime.getMinutes()).padStart(2, '0');
+  const ss = String(manilaTime.getSeconds()).padStart(2, '0');
+  return `${hh}:${mm}:${ss}`;
+}
+
+// ============================================
 // GET ATTENDANCE FOR A SPECIFIC DATE
 // ============================================
 exports.getAttendanceByDate = (req, res) => {
@@ -37,7 +61,6 @@ exports.getAttendanceByDate = (req, res) => {
 exports.markAttendance = (req, res) => {
   const { student_id, date, status, time_in, remarks } = req.body;
 
-  // ✅ Validation
   const validStatuses = ['present', 'absent', 'late'];
   if (!validStatuses.includes(status)) {
     return res.status(400).json({ message: 'Invalid status.' });
@@ -77,15 +100,6 @@ exports.markAttendance = (req, res) => {
 // ============================================
 // GET TODAY'S STATS
 // ============================================
-function getTodayInManila() {
-  const now = new Date();
-  const manilaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
-  const yyyy = manilaTime.getFullYear();
-  const mm = String(manilaTime.getMonth() + 1).padStart(2, '0');
-  const dd = String(manilaTime.getDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
-}
-
 exports.getTodayStats = (req, res) => {
   const today = getTodayInManila();
 
@@ -160,7 +174,6 @@ exports.getAttendanceSummary = (req, res) => {
 // ✅ GET MY ATTENDANCE — userId MULA SA TOKEN
 // ============================================
 exports.getMyAttendance = (req, res) => {
-  // ✅ MULA SA TOKEN, HINDI SA URL!
   const userId = req.user.id;
 
   const query = `
@@ -199,56 +212,133 @@ exports.deleteAttendance = (req, res) => {
 };
 
 // ============================================
-// ✅ GENERATE CHECK-IN CODE — teacher_id MULA SA TOKEN
+// ✅ GENERATE CHECK-IN CODE (NEW)
+// Saves to attendance_sessions with class, subject,
+// start_time, end_time, 10-minute expiry
 // ============================================
 exports.generateCode = (req, res) => {
-  // ✅ MULA SA TOKEN, HINDI SA BODY!
   const teacher_id = req.user.id;
+  const { class_id, subject_id, start_time, end_time } = req.body;
 
-  const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-  const today = getTodayInManila();
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+  // ✅ Validation
+  if (!class_id || !subject_id || !start_time || !end_time) {
+    return res.status(400).json({ message: 'class_id, subject_id, start_time, and end_time are required.' });
+  }
 
-  const query = 'INSERT INTO attendance_codes (code, teacher_id, date, expires_at) VALUES (?, ?, ?, ?)';
-  db.query(query, [code, teacher_id, today, expiresAt], (err, result) => {
+  if (!/^\d{2}:\d{2}(:\d{2})?$/.test(start_time) || !/^\d{2}:\d{2}(:\d{2})?$/.test(end_time)) {
+    return res.status(400).json({ message: 'Invalid time format. Use HH:MM or HH:MM:SS.' });
+  }
+
+  if (start_time >= end_time) {
+    return res.status(400).json({ message: 'End time must be after start time.' });
+  }
+
+  // ✅ Ensure the class belongs to this teacher
+  const ownerCheck = 'SELECT id FROM classes WHERE id = ? AND teacher_id = ?';
+  db.query(ownerCheck, [class_id, teacher_id], (err, ownerResult) => {
     if (err) {
-      console.error('generateCode error:', err);
+      console.error('generateCode owner check error:', err);
       return res.status(500).json({ message: 'Database error.' });
     }
-    res.status(201).json({ code, expiresAt });
+
+    if (ownerResult.length === 0) {
+      return res.status(404).json({ message: 'Class not found or not yours.' });
+    }
+
+    // ✅ Ensure the subject belongs to this class
+    const subjectCheck = 'SELECT id FROM subjects WHERE id = ? AND class_id = ?';
+    db.query(subjectCheck, [subject_id, class_id], (err2, subjectResult) => {
+      if (err2) {
+        console.error('generateCode subject check error:', err2);
+        return res.status(500).json({ message: 'Database error.' });
+      }
+
+      if (subjectResult.length === 0) {
+        return res.status(404).json({ message: 'Subject not found for this class.' });
+      }
+
+      // ✅ Generate unique code
+      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const today = getTodayInManila();
+
+      // ✅ 10 minutes expiry from now
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+      const insertQuery = `
+        INSERT INTO attendance_sessions 
+        (teacher_id, attendance_date, start_time, end_time, code, expires_at, active, class_id, subject_id)
+        VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)
+      `;
+
+      db.query(
+        insertQuery,
+        [teacher_id, today, start_time, end_time, code, expiresAt, class_id, subject_id],
+        (err3, result) => {
+          if (err3) {
+            console.error('generateCode insert error:', err3);
+            return res.status(500).json({ message: 'Database error.' });
+          }
+          res.status(201).json({
+            message: 'Check-in code generated!',
+            session_id: result.insertId,
+            code,
+            expiresAt,
+            start_time,
+            end_time
+          });
+        }
+      );
+    });
   });
 };
 
 // ============================================
-// ✅ STUDENT CHECK-IN — user_id MULA SA TOKEN
+// ✅ STUDENT CHECK-IN (NEW)
+// Links to session, computes Present/Late
 // ============================================
 exports.checkIn = (req, res) => {
   const { code } = req.body;
-  // ✅ MULA SA TOKEN, HINDI SA BODY!
   const user_id = req.user.id;
 
   if (!code) {
-    return res.status(400).json({ message: 'code is required.' });
+    return res.status(400).json({ message: 'Code is required.' });
   }
 
-  const codeQuery = 'SELECT * FROM attendance_codes WHERE code = ? ORDER BY created_at DESC LIMIT 1';
-  db.query(codeQuery, [code.toUpperCase()], (err, codeResults) => {
+  // ✅ Find the active session with this code
+  const sessionQuery = `
+    SELECT * FROM attendance_sessions 
+    WHERE code = ? AND active = 1
+    ORDER BY created_at DESC 
+    LIMIT 1
+  `;
+
+  db.query(sessionQuery, [code.toUpperCase()], (err, sessionResults) => {
     if (err) {
-      console.error('checkIn code query error:', err);
+      console.error('checkIn session query error:', err);
       return res.status(500).json({ message: 'Database error.' });
     }
 
-    if (codeResults.length === 0) {
+    if (sessionResults.length === 0) {
       return res.status(404).json({ message: 'Invalid code.' });
     }
 
-    const codeData = codeResults[0];
+    const session = sessionResults[0];
     const now = new Date();
+    const nowManila = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+    const nowTimeStr = getNowTimeInManila();
+    const today = getTodayInManila();
 
-    if (new Date(codeData.expires_at) < now) {
+    // ✅ Check if code expired
+    if (new Date(session.expires_at) < now) {
       return res.status(410).json({ message: 'This code has expired.' });
     }
 
+    // ✅ Check if already past end_time (session closed)
+    if (nowTimeStr > session.end_time) {
+      return res.status(410).json({ message: 'This class session is already closed.' });
+    }
+
+    // ✅ Get student profile
     const studentQuery = 'SELECT id FROM students WHERE user_id = ?';
     db.query(studentQuery, [user_id], (err2, studentResults) => {
       if (err2) {
@@ -261,21 +351,46 @@ exports.checkIn = (req, res) => {
       }
 
       const studentId = studentResults[0].id;
-      const timeIn = now.toTimeString().split(' ')[0];
 
+      // ✅ Compute status: Present or Late
+      // Start time + 10 min = Present window
+      const startTime = session.start_time;
+      const [startH, startM, startS] = startTime.split(':').map(Number);
+      const startDate = new Date(nowManila);
+      startDate.setHours(startH, startM, startS || 0, 0);
+
+      const diffMs = nowManila - startDate;
+      const diffMin = diffMs / (1000 * 60);
+
+      let status = 'present';
+      if (diffMin > 10) {
+        status = 'late';
+      }
+
+      // ✅ Insert or update attendance (with session_id)
       const markQuery = `
-        INSERT INTO attendance (student_id, date, status, time_in)
-        VALUES (?, ?, 'present', ?)
-        ON DUPLICATE KEY UPDATE status = 'present', time_in = ?
+        INSERT INTO attendance (student_id, date, status, time_in, session_id)
+        VALUES (?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE status = ?, time_in = ?, session_id = ?
       `;
 
-      db.query(markQuery, [studentId, codeData.date, timeIn, timeIn], (err3) => {
-        if (err3) {
-          console.error('checkIn mark error:', err3);
-          return res.status(500).json({ message: 'Database error.' });
+      db.query(
+        markQuery,
+        [studentId, today, status, nowTimeStr, session.id, status, nowTimeStr, session.id],
+        (err3) => {
+          if (err3) {
+            console.error('checkIn mark error:', err3);
+            return res.status(500).json({ message: 'Database error.' });
+          }
+
+          const label = status === 'present' ? 'Present' : 'Late';
+          res.status(200).json({
+            message: `Checked in successfully! You are marked ${label}.`,
+            status,
+            time_in: nowTimeStr
+          });
         }
-        res.status(200).json({ message: 'Checked in successfully! You are marked present.' });
-      });
+      );
     });
   });
 };
