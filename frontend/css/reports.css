@@ -1,14 +1,14 @@
 .count-present {
-  color: #22c55e;
+  color: #2F9E67;
   font-weight: bold;
 }
 
 .count-late {
-  color: #f59e0b;
+  color: #E0952B;
   font-weight: bold;
 }
 
 .count-absent {
-  color: #ef4444;
+  color: #D64550;
   font-weight: bold;
 }

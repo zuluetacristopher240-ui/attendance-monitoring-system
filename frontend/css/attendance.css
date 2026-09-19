@@ -3,7 +3,7 @@
   padding: 15px 20px;
   border-radius: 10px;
   margin-bottom: 20px;
-  border: 1px solid #E7E3DA;
+  border: 1px solid #E5E5E5;
   display: flex;
   align-items: center;
   gap: 15px;
@@ -50,7 +50,7 @@
 .status-absent { background: #D64550; }
 .status-late { background: #E0952B; }
 .status-none {
-  background: #E7E3DA;
+  background: #E5E5E5;
   color: #6B7280;
 }
 
@@ -81,7 +81,7 @@
 .code-display {
   margin-top: 12px;
   background: white;
-  border: 2px dashed #D9A441;
+  border: 2px dashed #D4AF37;
   border-radius: 10px;
   padding: 16px;
   display: flex;
@@ -95,7 +95,7 @@
   font-size: 32px;
   font-weight: 700;
   letter-spacing: 4px;
-  color: #1B2A4A;
+  color: #800000;
 }
 
 #codeTimer {
@@ -110,13 +110,13 @@
   border-radius: 10px;
   padding: 20px;
   margin-bottom: 20px;
-  border: 1px solid #E7E3DA;
+  border: 1px solid #E5E5E5;
 }
 
 .checkin-box h3 {
   font-family: 'Poppins', sans-serif;
   font-size: 15px;
-  color: #1B2A4A;
+  color: #800000;
   margin-bottom: 12px;
 }
 
@@ -145,10 +145,10 @@
 /* ============ SUBJECT CARD ============ */
 .subject-card {
   padding: 14px 16px;
-  border: 1px solid #E7E3DA;
+  border: 1px solid #E5E5E5;
   border-radius: 10px;
   margin-bottom: 10px;
-  background: #F7F5F1;
+  background: #FAFAFA;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -163,7 +163,7 @@
 
 .subject-card .subject-title {
   font-weight: 600;
-  color: #1B2A4A;
+  color: #800000;
   font-size: 15px;
   margin: 0;
 }
@@ -206,7 +206,6 @@
     flex-direction: column;
   }
 
-  /* ✅ Subject card — vertical stack */
   .subject-card {
     flex-direction: column;
     align-items: stretch;
@@ -266,7 +265,7 @@
 }
 
 .toast {
-  background: #1B2A4A;
+  background: #800000;
   color: #fff;
   padding: 14px 18px;
   border-radius: 10px;

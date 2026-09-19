@@ -2,7 +2,7 @@
   margin-bottom: 20px;
 }
 
-/* TABLE WRAPPER — enables horizontal scroll on small screens */
+/* TABLE WRAPPER */
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
@@ -17,11 +17,11 @@
   background: white;
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid #E7E3DA;
+  border: 1px solid #E5E5E5;
 }
 
 .students-table thead {
-  background: #1B2A4A;
+  background: #800000;
   color: white;
 }
 
@@ -42,7 +42,7 @@
 }
 
 .students-table tbody tr:hover {
-  background: #F7F5F1;
+  background: #FAFAFA;
 }
 
 .btn-edit,
@@ -59,7 +59,7 @@
 }
 
 .btn-edit {
-  background: #E0952B;
+  background: #D4AF37;
   color: white;
 }
 
@@ -85,7 +85,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(27, 42, 74, 0.45);
+  background: rgba(128, 0, 0, 0.45);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -116,7 +116,7 @@
 .modal-content h2 {
   margin-bottom: 20px;
   font-size: 18px;
-  color: #1B2A4A;
+  color: #800000;
   font-weight: 600;
 }
 
@@ -142,7 +142,7 @@
 
 .modal-content input:focus {
   outline: none;
-  border-color: #D9A441;
+  border-color: #D4AF37;
 }
 
 .modal-actions {
@@ -152,7 +152,7 @@
   margin-top: 20px;
 }
 
-/* ============ RESPONSIVE (TABLET) ============ */
+/* RESPONSIVE (TABLET) */
 @media (max-width: 768px) {
   .students-table th,
   .students-table td {
@@ -167,7 +167,7 @@
   }
 }
 
-/* ============ RESPONSIVE (MOBILE) ============ */
+/* RESPONSIVE (MOBILE) */
 @media (max-width: 480px) {
   .students-table th,
   .students-table td {
@@ -175,7 +175,6 @@
     font-size: 12px;
   }
 
-  /* Hide remarks column sa mobile */
   .students-table th:nth-child(5),
   .students-table td:nth-child(5) {
     display: none;

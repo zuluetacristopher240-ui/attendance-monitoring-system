@@ -6,7 +6,7 @@
 }
 
 body {
-  background: #1B2A4A;
+  background: #800000;
 }
 
 /* ============ FULL-PAGE ANIMATED BACKGROUND ============ */
@@ -14,7 +14,7 @@ body {
   position: relative;
   min-height: 100vh;
   overflow: hidden;
-  background: linear-gradient(160deg, #1B2A4A 0%, #263C68 55%, #1B2A4A 100%);
+  background: linear-gradient(160deg, #800000 0%, #A52A2A 55%, #800000 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -27,7 +27,7 @@ body {
   right: -8%;
   width: 520px;
   height: 520px;
-  background: radial-gradient(circle, rgba(217, 164, 65, 0.32) 0%, rgba(217, 164, 65, 0) 70%);
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.35) 0%, rgba(212, 175, 55, 0) 70%);
   filter: blur(10px);
   animation: glowPulse 6s ease-in-out infinite;
 }
@@ -42,7 +42,7 @@ body {
   z-index: 2;
 }
 
-/* Floating check-in "stamps" — spread across the whole background */
+/* Floating check-in "stamps" */
 .floaters {
   position: absolute;
   inset: 0;
@@ -59,8 +59,8 @@ body {
   height: 46px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.06);
-  border: 1.5px solid rgba(217, 164, 65, 0.4);
-  color: #D9A441;
+  border: 1.5px solid rgba(212, 175, 55, 0.5);
+  color: #D4AF37;
   font-size: 18px;
   font-weight: 700;
   animation: drift 11s ease-in-out infinite;
@@ -93,7 +93,7 @@ body {
   background: white;
   padding: 44px;
   border-radius: 16px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
   width: 360px;
   animation: cardIn 0.4s ease;
 }
@@ -106,8 +106,8 @@ body {
 .login-container h2 {
   text-align: center;
   margin-bottom: 8px;
-  color: #1B2A4A;
-  font-size: 21px;
+  color: #800000;
+  font-size: 22px;
   font-family: 'Poppins', sans-serif;
   font-weight: 700;
 }
@@ -134,14 +134,14 @@ body {
 
 .form-group input:focus {
   outline: none;
-  border-color: #D9A441;
-  box-shadow: 0 0 0 3px rgba(217, 164, 65, 0.15);
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
 }
 
 button {
   width: 100%;
   padding: 11px;
-  background: #D9A441;
+  background: #800000;
   color: white;
   border: none;
   border-radius: 8px;
@@ -153,7 +153,7 @@ button {
 }
 
 button:hover {
-  background: #B9862F;
+  background: #A52A2A;
 }
 
 button:active {
@@ -182,8 +182,8 @@ button:active {
 
 .role-btn {
   flex: 1;
-  background: #F7F5F1;
-  border: 2px solid #E7E3DA;
+  background: #FAFAFA;
+  border: 2px solid #E5E5E5;
   border-radius: 12px;
   padding: 24px 10px;
   cursor: pointer;
@@ -198,9 +198,9 @@ button:active {
 }
 
 .role-btn:hover {
-  border-color: #D9A441;
+  border-color: #D4AF37;
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(217, 164, 65, 0.18);
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
 }
 
 .role-btn:active {
@@ -219,9 +219,9 @@ button:active {
 }
 
 .admin-link a {
-  color: #1B2A4A;
+  color: #800000;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .admin-link a:hover {
@@ -235,7 +235,7 @@ button:active {
 }
 
 .back-link a {
-  color: #1B2A4A;
+  color: #800000;
   text-decoration: none;
 }
 

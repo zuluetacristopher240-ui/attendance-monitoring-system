@@ -1,5 +1,5 @@
 /* ============================================
-   SIDEBAR COLLAPSE — using margin approach
+   SIDEBAR COLLAPSE — Desktop
    ============================================ */
 
 .sidebar {
@@ -7,13 +7,12 @@
   will-change: margin-left;
 }
 
-/* Kapag naka-hide: i-pull pakanan yung sidebar */
 .sidebar.hidden {
   margin-left: -230px !important;
 }
 
 /* ============================================
-   TOPBAR LEFT — flex layout para sa button + title
+   TOPBAR LEFT
    ============================================ */
 
 .topbar {
@@ -42,9 +41,9 @@
   width: 40px;
   height: 40px;
   min-width: 40px;
-  border: 1px solid #E7E3DA;
+  border: 1px solid #E5E5E5;
   background: #ffffff;
-  color: #1B2A4A;
+  color: #800000;
   font-size: 20px;
   cursor: pointer;
   border-radius: 8px;
@@ -56,7 +55,7 @@
 }
 
 .sidebar-toggle:hover {
-  background: #F7F5F1;
+  background: #FAFAFA;
 }
 
 .sidebar-toggle:active {
@@ -64,20 +63,25 @@
 }
 
 /* ============================================
-   MOBILE — overlay style
+   MOBILE — overlay style sidebar + VERTICAL nav
    ============================================ */
 
 @media (max-width: 768px) {
+  /* Sidebar — fixed, 230px wide, hindi sakop ang buong screen */
   .sidebar {
     position: fixed;
     top: 0;
     left: 0;
+    width: 230px !important;
+    max-width: 75vw !important;
     height: 100vh;
     z-index: 999;
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 4px 0 20px rgba(128, 0, 0, 0.25);
     margin-left: 0 !important;
     transform: translateX(0);
     transition: transform 0.3s ease;
+    overflow-y: auto;
+    padding: 24px 16px;
   }
 
   .sidebar.hidden {
@@ -85,22 +89,62 @@
     transform: translateX(-100%);
   }
 
+  /* ✅ FORCE VERTICAL STACKING — ito yung fix */
+  .sidebar nav {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-x: visible !important;
+    flex-wrap: nowrap !important;
+    gap: 4px !important;
+  }
+
+  .sidebar nav a {
+    display: block !important;
+    white-space: normal !important;
+    margin-bottom: 4px !important;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px !important;
+    font-size: 14px !important;
+    text-align: left;
+  }
+
+  /* Alisin yung gold accent line sa mobile */
+  .sidebar nav a::before {
+    display: none !important;
+  }
+
+  /* Sidebar header text — mas maliit sa mobile */
+  .sidebar h2 {
+    font-size: 20px !important;
+    margin-bottom: 24px !important;
+    letter-spacing: 2px !important;
+  }
+
+  /* Dark overlay sa likod ng sidebar */
   .sidebar-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.5);
     z-index: 998;
     display: none;
+    animation: fadeIn 0.2s ease;
   }
 
   .sidebar-overlay.active {
     display: block;
   }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
 }
 
+/* Desktop: walang overlay */
 @media (min-width: 769px) {
   .sidebar-overlay {
     display: none !important;
