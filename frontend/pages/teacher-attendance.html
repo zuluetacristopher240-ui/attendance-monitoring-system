@@ -9,21 +9,25 @@
   <link rel="stylesheet" href="../css/dashboard.css">
   <link rel="stylesheet" href="../css/attendance.css">
   <link rel="stylesheet" href="../css/students.css">
+  <link rel="stylesheet" href="../css/sidebar.css">
 </head>
 <body>
   <div class="dashboard-container">
-    <aside class="sidebar">
+    <aside class="sidebar" id="mainSidebar">
       <h2>AMS</h2>
       <nav>
-        <a href="teacher-dashboard.html">Dashboard</a>
-        <a href="teacher-attendance.html" class="active">Take Attendance</a>
-        <a href="#" id="logoutBtn">Logout</a>
+        <a href="teacher-dashboard.html">📊 Dashboard</a>
+        <a href="teacher-attendance.html" class="active">✏️ Take Attendance</a>
+        <a href="#" id="logoutBtn">🚪 Logout</a>
       </nav>
     </aside>
 
     <main class="main-content">
       <header class="topbar">
-        <h1>Take Attendance</h1>
+        <div class="topbar-left">
+          <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+          <h1>Take Attendance</h1>
+        </div>
         <span id="welcomeUser">Welcome!</span>
         <div id="toastContainer" class="toast-container"></div>
       </header>
@@ -34,7 +38,6 @@
         <span id="summaryText"></span>
       </div>
 
-      <!-- ✅ BAGONG FORM: Class, Subject, Start/End time -->
       <div class="checkin-box" style="margin-bottom: 20px;">
         <h3>Generate Check-In Code</h3>
         <div class="form-group" style="margin-bottom: 12px;">
@@ -106,6 +109,7 @@
   <script src="../js/utils/api.js"></script>
   <script src="../js/utils/auth.js"></script>
   <script src="../js/utils/toast.js"></script>
+  <script src="../js/utils/sidebar.js"></script>
 
   <!-- Page-specific -->
   <script src="../js/teacher-attendance.js"></script>

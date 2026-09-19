@@ -7,6 +7,7 @@
   display: flex;
   align-items: center;
   gap: 15px;
+  flex-wrap: wrap;
 }
 
 .date-bar label {
@@ -28,7 +29,7 @@
   color: #6B7280;
 }
 
-/* STATUS BADGE — the "stamp" moment */
+/* ============ STATUS BADGE ============ */
 .status-badge {
   display: inline-block;
   padding: 4px 12px;
@@ -45,23 +46,15 @@
   100% { transform: scale(1) rotate(0deg); }
 }
 
-.status-present {
-  background: #2F9E67;
-}
-
-.status-absent {
-  background: #D64550;
-}
-
-.status-late {
-  background: #E0952B;
-}
-
+.status-present { background: #2F9E67; }
+.status-absent { background: #D64550; }
+.status-late { background: #E0952B; }
 .status-none {
   background: #E7E3DA;
   color: #6B7280;
 }
 
+/* ============ ATTENDANCE ACTIONS ============ */
 .attendance-actions button {
   border: none;
   padding: 6px 10px;
@@ -70,33 +63,20 @@
   font-size: 12px;
   font-weight: 500;
   margin-right: 5px;
+  margin-bottom: 4px;
   color: white;
   transition: opacity 0.12s ease, transform 0.08s ease;
 }
 
-.btn-present {
-  background: #2F9E67;
-}
+.btn-present { background: #2F9E67; }
+.btn-absent { background: #D64550; }
+.btn-late { background: #E0952B; }
 
-.btn-absent {
-  background: #D64550;
-}
+.attendance-actions button:hover { opacity: 0.88; }
+.attendance-actions button:active { transform: scale(0.93); }
 
-.btn-late {
-  background: #E0952B;
-}
-
-.attendance-actions button:hover {
-  opacity: 0.88;
-}
-
-.attendance-actions button:active {
-  transform: scale(0.93);
-}
-
-.code-generator {
-  margin-bottom: 20px;
-}
+/* ============ CODE GENERATOR ============ */
+.code-generator { margin-bottom: 20px; }
 
 .code-display {
   margin-top: 12px;
@@ -107,6 +87,7 @@
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 #codeText {
@@ -123,6 +104,7 @@
   font-weight: 500;
 }
 
+/* ============ CHECK-IN BOX ============ */
 .checkin-box {
   background: white;
   border-radius: 10px;
@@ -153,14 +135,63 @@
   text-transform: uppercase;
 }
 
-#checkInMessage {
+#checkInMessage,
+#joinNewMessage {
   margin-top: 10px;
   font-size: 13px;
   font-weight: 500;
 }
 
+/* ============ SUBJECT CARD ============ */
+.subject-card {
+  padding: 14px 16px;
+  border: 1px solid #E7E3DA;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  background: #F7F5F1;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
 
-/* ============ RESPONSIVE (MOBILE) ============ */
+.subject-card .subject-info {
+  flex: 1;
+  min-width: 200px;
+}
+
+.subject-card .subject-title {
+  font-weight: 600;
+  color: #1B2A4A;
+  font-size: 15px;
+  margin: 0;
+}
+
+.subject-card .subject-meta {
+  color: #6B7280;
+  font-size: 12px;
+  margin: 4px 0 0 0;
+}
+
+.subject-card .subject-status-active {
+  color: #2F9E67;
+  font-size: 13px;
+  margin: 8px 0 0 0;
+  font-weight: 600;
+}
+
+.subject-card .subject-status-none {
+  color: #999;
+  font-size: 12px;
+  margin: 8px 0 0 0;
+}
+
+.subject-card .join-btn {
+  align-self: center;
+}
+
+/* ============ RESPONSIVE (TABLET) ============ */
 @media (max-width: 768px) {
   .date-bar {
     flex-wrap: wrap;
@@ -174,8 +205,53 @@
   .checkin-form {
     flex-direction: column;
   }
+
+  /* ✅ Subject card — vertical stack */
+  .subject-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .subject-card .join-btn {
+    width: 100%;
+    margin-top: 8px;
+  }
 }
 
+/* ============ RESPONSIVE (MOBILE) ============ */
+@media (max-width: 480px) {
+  .code-display {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  #codeText {
+    font-size: 26px;
+    letter-spacing: 3px;
+  }
+
+  .checkin-box {
+    padding: 16px;
+  }
+
+  .checkin-form input {
+    font-size: 16px;
+    letter-spacing: 2px;
+  }
+
+  .subject-card {
+    padding: 12px 14px;
+  }
+
+  .subject-card .subject-title {
+    font-size: 14px;
+  }
+
+  .subject-card .subject-meta {
+    font-size: 11px;
+  }
+}
 
 /* ============ TOAST NOTIFICATIONS ============ */
 .toast-container {
@@ -215,6 +291,9 @@
   to { opacity: 0; transform: translateX(30px); }
 }
 
+.toast-late { border-left-color: #E0952B; }
+.toast-absent { border-left-color: #D64550; }
+
 @media (max-width: 480px) {
   .toast-container {
     left: 16px;
@@ -222,13 +301,4 @@
     top: 12px;
     max-width: none;
   }
-}
-
-
-.toast-late {
-  border-left-color: #E0952B;
-}
-
-.toast-absent {
-  border-left-color: #D64550;
 }

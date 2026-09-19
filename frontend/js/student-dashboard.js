@@ -1,6 +1,6 @@
 /**
  * student-dashboard.js
- * Student Dashboard — My Attendance + Check-in + My Subjects.
+ * Student Dashboard — My Subjects, Join Class, Attendance History.
  */
 
 // ✅ Auth check — student lang
@@ -12,6 +12,7 @@ setupLogout();
 let lastKnownStatus = null;
 let hasInitialized = false;
 let pollInterval = null;
+let currentJoinSubjectId = null;
 
 function getTodayDate() {
   const today = new Date();
@@ -22,7 +23,7 @@ function getTodayDate() {
 }
 
 // ============================================
-// ✅ LOAD MY SUBJECTS (student)
+// ✅ LOAD MY SUBJECTS (with active session info)
 // ============================================
 async function loadMySubjects() {
   const list = document.getElementById('subjectsList');
@@ -36,9 +37,9 @@ async function loadMySubjects() {
       list.innerHTML = `
         <div style="text-align: center; padding: 20px;">
           <div style="font-size: 36px; margin-bottom: 8px;">📚</div>
-          <p style="color: #666; font-size: 14px; font-weight: 500;">No subjects enrolled</p>
+          <p style="color: #666; font-size: 14px; font-weight: 500;">You haven't joined any subject yet.</p>
           <p style="color: #999; font-size: 12px; margin-top: 4px;">
-            Ask your teacher to enroll you in a subject.
+            Enter a code from your teacher below to get started.
           </p>
         </div>
       `;
@@ -46,31 +47,43 @@ async function loadMySubjects() {
     }
 
     subjects.forEach(s => {
+      const hasActive = s.active_session_id && s.active_session_end_time;
       const card = document.createElement('div');
-      card.style.cssText = `
-        padding: 12px 14px;
-        border: 1px solid #E7E3DA;
-        border-radius: 8px;
-        margin-bottom: 8px;
-        background: #F7F5F1;
-      `;
+      card.className = 'subject-card';
 
       card.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
-          <div>
-            <p style="font-weight: 600; color: #1B2A4A; font-size: 14px; margin: 0;">
-              ${escapeHtml(s.subject_code)} — ${escapeHtml(s.subject_name)}
-            </p>
-            <p style="color: #6B7280; font-size: 12px; margin: 4px 0 0 0;">
-              ${escapeHtml(s.class_code)} (${escapeHtml(s.year_level)} - ${escapeHtml(s.section)})
-            </p>
-            <p style="color: #6B7280; font-size: 12px; margin: 2px 0 0 0;">
-              Teacher: ${escapeHtml(s.teacher_name) || 'N/A'}
-            </p>
-          </div>
+        <div class="subject-info">
+          <p class="subject-title">
+            ${escapeHtml(s.subject_code)} — ${escapeHtml(s.subject_name)}
+          </p>
+          <p class="subject-meta">
+            ${escapeHtml(s.class_code)} (${escapeHtml(s.year_level)} - ${escapeHtml(s.section)})
+          </p>
+          <p class="subject-meta">
+            Teacher: ${escapeHtml(s.teacher_name) || 'N/A'}
+          </p>
+          ${hasActive 
+            ? `<p class="subject-status-active">
+                 🟢 Active session ${s.active_session_end_time ? `(until ${s.active_session_end_time})` : ''}
+               </p>` 
+            : `<p class="subject-status-none">⚪ No active session</p>`
+          }
         </div>
+        <button class="btn-primary join-btn" data-subject-id="${s.subject_id}" data-subject-name="${escapeHtml(s.subject_code)} — ${escapeHtml(s.subject_name)}">
+          Join Class
+        </button>
       `;
       list.appendChild(card);
+    });
+
+    // ✅ Attach click handlers sa Join buttons
+    list.querySelectorAll('.join-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openJoinModal(
+          parseInt(btn.dataset.subjectId, 10),
+          btn.dataset.subjectName
+        );
+      });
     });
 
   } catch (error) {
@@ -80,6 +93,96 @@ async function loadMySubjects() {
         ${escapeHtml(error.message)}
       </p>
     `;
+  }
+}
+
+// ============================================
+// ✅ JOIN MODAL
+// ============================================
+function openJoinModal(subjectId, subjectName) {
+  currentJoinSubjectId = subjectId;
+  document.getElementById('joinModalTitle').textContent = `Join: ${subjectName}`;
+  document.getElementById('joinModalSubtitle').textContent = 'Enter the code from your teacher to check in.';
+  document.getElementById('joinModalCode').value = '';
+  document.getElementById('joinModal').classList.remove('hidden');
+}
+
+document.getElementById('cancelJoinBtn').addEventListener('click', () => {
+  document.getElementById('joinModal').classList.add('hidden');
+  currentJoinSubjectId = null;
+});
+
+// ============================================
+// ✅ JOIN FORM SUBMIT (for specific subject)
+// ============================================
+document.getElementById('joinForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const code = document.getElementById('joinModalCode').value.trim();
+
+  if (!code) {
+    showToast('Please enter a code.', 'late');
+    return;
+  }
+
+  await performCheckIn(code);
+  document.getElementById('joinModal').classList.add('hidden');
+  currentJoinSubjectId = null;
+});
+
+// ============================================
+// ✅ JOIN NEW SUBJECT (general)
+// ============================================
+document.getElementById('joinNewBtn').addEventListener('click', async function() {
+  const btn = this;
+  const code = document.getElementById('joinNewCode').value.trim();
+  const message = document.getElementById('joinNewMessage');
+
+  if (!code) {
+    message.textContent = 'Please enter a code.';
+    message.style.color = '#D64550';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Joining...';
+  message.textContent = '';
+
+  try {
+    const data = await API.post('/api/attendance/check-in', { code });
+
+    message.textContent = data.message;
+    message.style.color = '#2F9E67';
+    document.getElementById('joinNewCode').value = '';
+
+    showToast(data.message, data.status || 'present');
+
+    loadMySubjects();
+    loadMyAttendance(false);
+
+  } catch (error) {
+    console.error('Error joining:', error);
+    message.textContent = error.message || 'Join failed.';
+    message.style.color = '#D64550';
+    showToast(error.message, 'absent');
+
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Join';
+  }
+});
+
+// ============================================
+// ✅ PERFORM CHECK-IN (shared function)
+// ============================================
+async function performCheckIn(code) {
+  try {
+    const data = await API.post('/api/attendance/check-in', { code });
+    showToast(data.message, data.status || 'present');
+    loadMySubjects();
+    loadMyAttendance(false);
+  } catch (error) {
+    console.error('Error checking in:', error);
+    showToast(error.message, 'absent');
   }
 }
 
@@ -97,11 +200,11 @@ async function loadMyAttendance(notify = false) {
     if (!records || records.length === 0) {
       tableBody.innerHTML = `
         <tr>
-          <td colspan="4" style="text-align: center; padding: 40px 20px;">
+          <td colspan="5" style="text-align: center; padding: 40px 20px;">
             <div style="font-size: 48px; margin-bottom: 12px;">📭</div>
             <p style="color: #666; font-size: 15px; font-weight: 500;">No attendance records yet</p>
             <p style="color: #999; font-size: 13px; margin-top: 4px;">
-              Records will appear here once you check in or your teacher marks your attendance.
+              Your records will appear here once you join a class and check in.
             </p>
           </td>
         </tr>
@@ -124,8 +227,15 @@ async function loadMyAttendance(notify = false) {
       const row = document.createElement('tr');
 
       const dateTd = document.createElement('td');
-      dateTd.textContent = record.date || '-';
+      const d = record.date ? record.date.split('T')[0] : '-';
+      dateTd.textContent = d;
       row.appendChild(dateTd);
+
+      const subjectTd = document.createElement('td');
+      subjectTd.textContent = record.subject_code 
+        ? `${record.subject_code} — ${record.subject_name}` 
+        : '-';
+      row.appendChild(subjectTd);
 
       const statusTd = document.createElement('td');
       let badgeClass = 'status-none';
@@ -151,7 +261,7 @@ async function loadMyAttendance(notify = false) {
     console.error('Error loading attendance:', error);
     tableBody.innerHTML = `
       <tr>
-        <td colspan="4" style="text-align: center; padding: 20px; color: #D64550;">
+        <td colspan="5" style="text-align: center; padding: 20px; color: #D64550;">
           ${escapeHtml(error.message)}
         </td>
       </tr>
@@ -159,11 +269,13 @@ async function loadMyAttendance(notify = false) {
   }
 }
 
-// ✅ Initial load
+// ============================================
+// ✅ INITIAL LOAD
+// ============================================
 loadMySubjects();
 loadMyAttendance(false);
 
-// ✅ Auto-refresh every 5 seconds
+// ✅ Auto-refresh attendance every 5 seconds
 pollInterval = setInterval(() => {
   if (document.hidden) return;
   loadMyAttendance(true);
@@ -171,44 +283,4 @@ pollInterval = setInterval(() => {
 
 window.addEventListener('beforeunload', () => {
   if (pollInterval) clearInterval(pollInterval);
-});
-
-// ============================================
-// ✅ CHECK-IN BUTTON
-// ============================================
-document.getElementById('checkInBtn').addEventListener('click', async function() {
-  const btn = this;
-  const code = document.getElementById('checkInCode').value.trim();
-  const message = document.getElementById('checkInMessage');
-
-  if (!code) {
-    message.textContent = 'Please enter a code.';
-    message.style.color = '#D64550';
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Checking in...';
-
-  try {
-    const data = await API.post('/api/attendance/check-in', { code });
-
-    message.textContent = data.message;
-    message.style.color = '#2F9E67';
-    document.getElementById('checkInCode').value = '';
-
-    showToast(data.message, data.status || 'present');
-
-    loadMyAttendance(false);
-
-  } catch (error) {
-    console.error('Error checking in:', error);
-    message.textContent = error.message || 'Check-in failed.';
-    message.style.color = '#D64550';
-    showToast(error.message, 'absent');
-
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Check In';
-  }
 });

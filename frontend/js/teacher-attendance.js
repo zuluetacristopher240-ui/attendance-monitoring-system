@@ -1,6 +1,6 @@
 /**
  * teacher-attendance.js
- * Teacher "Take Attendance" logic with class/subject selection.
+ * Teacher "Take Attendance" logic — filtered by class+subject.
  */
 
 // ✅ Auth check — teacher lang
@@ -21,6 +21,8 @@ const endTimeInput = document.getElementById('endTime');
 let lastKnownTimeIn = {};
 let pollInterval = null;
 let codeCountdownInterval = null;
+let currentClassId = null;
+let currentSubjectId = null;
 
 function getTodayDate() {
   const today = new Date();
@@ -33,7 +35,7 @@ function getTodayDate() {
 dateInput.value = getTodayDate();
 
 // ============================================
-// ✅ LOAD CLASSES (teacher)
+// ✅ LOAD CLASSES
 // ============================================
 async function loadClasses() {
   try {
@@ -95,22 +97,57 @@ async function loadSubjects(classId) {
 // ✅ Pag-pili ng class → load subjects
 classSelect.addEventListener('change', function() {
   const classId = this.value;
+  currentClassId = classId;
+  currentSubjectId = null;
+
   if (!classId) {
     subjectSelect.innerHTML = '<option value="">-- Select Class First --</option>';
     subjectSelect.disabled = true;
+    renderEmptyState('Please select a class and subject above to view students.');
     return;
   }
   loadSubjects(classId);
+  renderEmptyState('Please select a subject to view students.');
+});
+
+// ✅ Pag-pili ng subject → load students
+subjectSelect.addEventListener('change', function() {
+  const subjectId = this.value;
+  currentSubjectId = subjectId;
+
+  if (!subjectId) {
+    renderEmptyState('Please select a subject to view students.');
+    return;
+  }
+  loadAttendance(false);
 });
 
 // ============================================
-// ✅ LOAD ATTENDANCE
+// ✅ EMPTY STATE
+// ============================================
+function renderEmptyState(message) {
+  tableBody.innerHTML = `
+    <tr>
+      <td colspan="6" style="text-align: center; padding: 40px 20px;">
+        <div style="font-size: 48px; margin-bottom: 12px;">📋</div>
+        <p style="color: #666; font-size: 15px; font-weight: 500;">${escapeHtml(message)}</p>
+      </td>
+    </tr>
+  `;
+  summaryText.textContent = '';
+}
+
+// ============================================
+// ✅ LOAD ATTENDANCE (filtered by class+subject)
 // ============================================
 async function loadAttendance(notify = false) {
-  const selectedDate = dateInput.value;
+  if (!currentClassId || !currentSubjectId) {
+    renderEmptyState('Please select a class and subject above to view students.');
+    return;
+  }
 
   try {
-    const students = await API.get(`/api/attendance/${selectedDate}`);
+    const students = await API.get(`/api/attendance/session/${currentClassId}/${currentSubjectId}/students`);
 
     tableBody.innerHTML = '';
 
@@ -118,8 +155,11 @@ async function loadAttendance(notify = false) {
       tableBody.innerHTML = `
         <tr>
           <td colspan="6" style="text-align: center; padding: 40px 20px;">
-            <div style="font-size: 48px; margin-bottom: 12px;">📭</div>
-            <p style="color: #666; font-size: 15px; font-weight: 500;">No students found</p>
+            <div style="font-size: 48px; margin-bottom: 12px;">👥</div>
+            <p style="color: #666; font-size: 15px; font-weight: 500;">No students enrolled in this subject yet.</p>
+            <p style="color: #999; font-size: 13px; margin-top: 4px;">
+              Ask admin to enroll students in this class.
+            </p>
           </td>
         </tr>
       `;
@@ -171,6 +211,13 @@ async function loadAttendance(notify = false) {
 
   } catch (error) {
     console.error('Error loading attendance:', error);
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align: center; padding: 20px; color: #D64550;">
+          ${escapeHtml(error.message)}
+        </td>
+      </tr>
+    `;
   }
 }
 
@@ -178,6 +225,11 @@ async function loadAttendance(notify = false) {
 // ✅ MARK STUDENT
 // ============================================
 async function markStudent(studentId, status) {
+  if (!currentSubjectId) {
+    showToast('Please select a subject first.', 'late');
+    return;
+  }
+
   const selectedDate = dateInput.value;
 
   let timeIn = null;
@@ -189,6 +241,7 @@ async function markStudent(studentId, status) {
   try {
     await API.post('/api/attendance', {
       student_id: studentId,
+      subject_id: parseInt(currentSubjectId, 10),
       date: selectedDate,
       status: status,
       time_in: timeIn
@@ -216,12 +269,12 @@ tableBody.addEventListener('click', (e) => {
 dateInput.addEventListener('change', () => loadAttendance(false));
 
 // ✅ Initial load
-loadAttendance(false);
+renderEmptyState('Please select a class and subject above to view students.');
 
 // ✅ Auto-refresh every 5 seconds
 pollInterval = setInterval(() => {
   if (document.hidden) return;
-  if (dateInput.value === getTodayDate()) {
+  if (dateInput.value === getTodayDate() && currentClassId && currentSubjectId) {
     loadAttendance(true);
   }
 }, 5000);
@@ -232,7 +285,7 @@ window.addEventListener('beforeunload', () => {
 });
 
 // ============================================
-// ✅ GENERATE CHECK-IN CODE (UPDATED)
+// ✅ GENERATE CHECK-IN CODE
 // ============================================
 document.getElementById('generateCodeBtn').addEventListener('click', async function() {
   const btn = this;
@@ -242,7 +295,6 @@ document.getElementById('generateCodeBtn').addEventListener('click', async funct
   const startTime = startTimeInput.value;
   const endTime = endTimeInput.value;
 
-  // ✅ Validation
   if (!classId) {
     showToast('Please select a class.', 'late');
     return;
@@ -278,7 +330,6 @@ document.getElementById('generateCodeBtn').addEventListener('click', async funct
     codeText.textContent = data.code;
     codeDisplay.classList.remove('hidden');
 
-    // ✅ 10-minute countdown (600 seconds)
     let secondsLeft = 600;
     codeTimer.textContent = `Expires in 10:00`;
 

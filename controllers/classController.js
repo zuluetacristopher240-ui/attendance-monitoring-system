@@ -5,6 +5,16 @@
 
 const db = require('../config/db');
 
+// Helper: today's date
+function getTodayInManila() {
+  const now = new Date();
+  const manilaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+  const yyyy = manilaTime.getFullYear();
+  const mm = String(manilaTime.getMonth() + 1).padStart(2, '0');
+  const dd = String(manilaTime.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
 // ============================================
 // ✅ GET MY CLASSES (teacher)
 // ============================================
@@ -80,21 +90,43 @@ exports.getSubjectsByClass = (req, res) => {
 };
 
 // ============================================
-// ✅ GET MY SUBJECTS (student)
+// ✅ GET MY SUBJECTS (student) — with active session info
 // ============================================
 exports.getMySubjects = (req, res) => {
   const userId = req.user.id;
+  const today = getTodayInManila();
 
   const query = `
     SELECT 
       subjects.id AS subject_id,
       subjects.subject_code,
       subjects.subject_name,
+      classes.id AS class_id,
       classes.class_code,
       classes.class_name,
       classes.year_level,
       classes.section,
-      teachers.full_name AS teacher_name
+      teachers.full_name AS teacher_name,
+      (
+        SELECT attendance_sessions.id 
+        FROM attendance_sessions 
+        WHERE attendance_sessions.subject_id = subjects.id
+          AND attendance_sessions.attendance_date = ?
+          AND attendance_sessions.active = 1
+          AND attendance_sessions.expires_at > NOW()
+        ORDER BY attendance_sessions.created_at DESC
+        LIMIT 1
+      ) AS active_session_id,
+      (
+        SELECT attendance_sessions.end_time
+        FROM attendance_sessions 
+        WHERE attendance_sessions.subject_id = subjects.id
+          AND attendance_sessions.attendance_date = ?
+          AND attendance_sessions.active = 1
+          AND attendance_sessions.expires_at > NOW()
+        ORDER BY attendance_sessions.created_at DESC
+        LIMIT 1
+      ) AS active_session_end_time
     FROM student_subjects
     JOIN students ON student_subjects.student_id = students.id
     JOIN subjects ON student_subjects.subject_id = subjects.id
@@ -104,11 +136,54 @@ exports.getMySubjects = (req, res) => {
     ORDER BY subjects.subject_name ASC
   `;
 
-  db.query(query, [userId], (err, results) => {
+  db.query(query, [today, today, userId], (err, results) => {
     if (err) {
       console.error('getMySubjects error:', err);
       return res.status(500).json({ message: 'Database error.' });
     }
     res.status(200).json(results);
+  });
+};
+
+// ============================================
+// ✅ BAGO: GET ACTIVE SESSION FOR A SUBJECT (student)
+// ============================================
+exports.getActiveSession = (req, res) => {
+  const { subjectId } = req.params;
+  const today = getTodayInManila();
+
+  const parsedSubjectId = parseInt(subjectId, 10);
+  if (!Number.isInteger(parsedSubjectId) || parsedSubjectId <= 0) {
+    return res.status(400).json({ message: 'Invalid subject ID.' });
+  }
+
+  const query = `
+    SELECT 
+      id AS session_id,
+      code,
+      start_time,
+      end_time,
+      expires_at,
+      active
+    FROM attendance_sessions
+    WHERE subject_id = ?
+      AND attendance_date = ?
+      AND active = 1
+      AND expires_at > NOW()
+    ORDER BY created_at DESC
+    LIMIT 1
+  `;
+
+  db.query(query, [parsedSubjectId, today], (err, results) => {
+    if (err) {
+      console.error('getActiveSession error:', err);
+      return res.status(500).json({ message: 'Database error.' });
+    }
+
+    if (results.length === 0) {
+      return res.status(200).json({ active: false, session: null });
+    }
+
+    res.status(200).json({ active: true, session: results[0] });
   });
 };

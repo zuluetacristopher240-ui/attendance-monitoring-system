@@ -1,0 +1,108 @@
+/* ============================================
+   SIDEBAR COLLAPSE — using margin approach
+   ============================================ */
+
+.sidebar {
+  transition: margin-left 0.3s ease;
+  will-change: margin-left;
+}
+
+/* Kapag naka-hide: i-pull pakanan yung sidebar */
+.sidebar.hidden {
+  margin-left: -230px !important;
+}
+
+/* ============================================
+   TOPBAR LEFT — flex layout para sa button + title
+   ============================================ */
+
+.topbar {
+  align-items: center;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.topbar-left h1 {
+  margin: 0;
+}
+
+/* ============================================
+   HAMBURGER BUTTON
+   ============================================ */
+
+.sidebar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border: 1px solid #E7E3DA;
+  background: #ffffff;
+  color: #1B2A4A;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s ease, transform 0.1s ease;
+  line-height: 1;
+  font-family: Arial, sans-serif;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.sidebar-toggle:hover {
+  background: #F7F5F1;
+}
+
+.sidebar-toggle:active {
+  transform: scale(0.92);
+}
+
+/* ============================================
+   MOBILE — overlay style
+   ============================================ */
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 999;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+    margin-left: 0 !important;
+    transform: translateX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.hidden {
+    margin-left: 0 !important;
+    transform: translateX(-100%);
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 998;
+    display: none;
+  }
+
+  .sidebar-overlay.active {
+    display: block;
+  }
+}
+
+@media (min-width: 769px) {
+  .sidebar-overlay {
+    display: none !important;
+  }
+}

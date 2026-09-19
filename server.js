@@ -31,7 +31,8 @@ const app = express();
 const authRoutes = require('./routes/authRoutes');
 const studentRoutes = require('./routes/studentRoutes.js');
 const attendanceRoutes = require('./routes/attendanceRoutes');
-const classRoutes = require('./routes/classRoutes');   // ✅ BAGO
+const classRoutes = require('./routes/classRoutes');
+const adminRoutes = require('./routes/adminRoutes');   // ✅ BAGO
 
 const PORT = process.env.PORT || 3000;
 
@@ -48,7 +49,8 @@ app.use(express.static(path.join(__dirname, 'frontend')));
 app.use('/api/auth', authRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/attendance', attendanceRoutes);
-app.use('/api', classRoutes);   // ✅ BAGO
+app.use('/api', classRoutes);
+app.use('/api/admin', adminRoutes);   // ✅ BAGO
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'pages', 'login.html'));

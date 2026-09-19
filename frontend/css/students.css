@@ -54,6 +54,7 @@
   font-size: 12px;
   font-weight: 500;
   margin-right: 5px;
+  margin-bottom: 4px;
   transition: opacity 0.12s ease, transform 0.08s ease;
 }
 
@@ -89,6 +90,7 @@
   justify-content: center;
   align-items: center;
   padding: 16px;
+  z-index: 1000;
 }
 
 .modal.hidden {
@@ -102,6 +104,8 @@
   width: 400px;
   max-width: 100%;
   animation: modalIn 0.2s ease;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 @keyframes modalIn {
@@ -148,7 +152,7 @@
   margin-top: 20px;
 }
 
-/* ============ RESPONSIVE (MOBILE) ============ */
+/* ============ RESPONSIVE (TABLET) ============ */
 @media (max-width: 768px) {
   .students-table th,
   .students-table td {
@@ -160,5 +164,48 @@
   .modal-content {
     padding: 22px;
     width: calc(100% - 32px);
+  }
+}
+
+/* ============ RESPONSIVE (MOBILE) ============ */
+@media (max-width: 480px) {
+  .students-table th,
+  .students-table td {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  /* Hide remarks column sa mobile */
+  .students-table th:nth-child(5),
+  .students-table td:nth-child(5) {
+    display: none;
+  }
+
+  .modal-content {
+    padding: 20px 16px;
+    width: 100%;
+    border-radius: 10px;
+  }
+
+  .modal-content h2 {
+    font-size: 16px;
+    margin-bottom: 16px;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .modal-actions button {
+    width: 100%;
+    margin: 0;
+  }
+
+  .btn-edit,
+  .btn-delete {
+    padding: 5px 10px;
+    font-size: 11px;
+    margin-right: 3px;
   }
 }

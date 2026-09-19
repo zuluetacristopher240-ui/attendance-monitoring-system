@@ -25,7 +25,7 @@ function getNowTimeInManila() {
 }
 
 // ============================================
-// GET ATTENDANCE FOR A SPECIFIC DATE
+// GET ATTENDANCE FOR A SPECIFIC DATE (existing)
 // ============================================
 exports.getAttendanceByDate = (req, res) => {
   const { date } = req.params;
@@ -56,10 +56,70 @@ exports.getAttendanceByDate = (req, res) => {
 };
 
 // ============================================
-// MARK ATTENDANCE
+// ✅ BAGO: GET STUDENTS FOR A CLASS+SUBJECT
+// Returns enrolled students + attendance status for today
+// ============================================
+exports.getSessionStudents = (req, res) => {
+  const { classId, subjectId } = req.params;
+  const teacherId = req.user.id;
+  const today = getTodayInManila();
+
+  const parsedClassId = parseInt(classId, 10);
+  const parsedSubjectId = parseInt(subjectId, 10);
+
+  if (!Number.isInteger(parsedClassId) || !Number.isInteger(parsedSubjectId)) {
+    return res.status(400).json({ message: 'Invalid class or subject ID.' });
+  }
+
+  // ✅ Verify teacher owns the class
+  const ownerCheck = 'SELECT id FROM classes WHERE id = ? AND teacher_id = ?';
+  db.query(ownerCheck, [parsedClassId, teacherId], (err, ownerResult) => {
+    if (err) {
+      console.error('getSessionStudents owner check error:', err);
+      return res.status(500).json({ message: 'Database error.' });
+    }
+
+    if (ownerResult.length === 0) {
+      return res.status(404).json({ message: 'Class not found or not yours.' });
+    }
+
+    // ✅ Get enrolled students + attendance status
+    const query = `
+      SELECT 
+        students.id AS student_id,
+        students.student_id AS student_number,
+        students.full_name,
+        students.year_level,
+        students.section,
+        attendance.id AS attendance_id,
+        attendance.status,
+        attendance.time_in,
+        attendance.remarks
+      FROM student_subjects
+      JOIN students ON student_subjects.student_id = students.id
+      LEFT JOIN attendance 
+        ON attendance.student_id = students.id 
+        AND attendance.date = ? 
+        AND attendance.subject_id = ?
+      WHERE student_subjects.subject_id = ?
+      ORDER BY students.full_name ASC
+    `;
+
+    db.query(query, [today, parsedSubjectId, parsedSubjectId], (err2, results) => {
+      if (err2) {
+        console.error('getSessionStudents error:', err2);
+        return res.status(500).json({ message: 'Database error.' });
+      }
+      res.status(200).json(results);
+    });
+  });
+};
+
+// ============================================
+// MARK ATTENDANCE (updated — may subject_id at session_id)
 // ============================================
 exports.markAttendance = (req, res) => {
-  const { student_id, date, status, time_in, remarks } = req.body;
+  const { student_id, date, status, time_in, remarks, subject_id, session_id } = req.body;
 
   const validStatuses = ['present', 'absent', 'late'];
   if (!validStatuses.includes(status)) {
@@ -79,14 +139,21 @@ exports.markAttendance = (req, res) => {
   }
 
   const query = `
-    INSERT INTO attendance (student_id, date, status, time_in, remarks)
-    VALUES (?, ?, ?, ?, ?)
-    ON DUPLICATE KEY UPDATE status = ?, time_in = ?, remarks = ?
+    INSERT INTO attendance (student_id, subject_id, date, status, time_in, remarks, session_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE 
+      status = ?, 
+      time_in = ?, 
+      remarks = ?,
+      session_id = ?
   `;
 
   db.query(
     query,
-    [student_id, date, status, time_in || null, remarks || null, status, time_in || null, remarks || null],
+    [
+      student_id, subject_id || null, date, status, time_in || null, remarks || null, session_id || null,
+      status, time_in || null, remarks || null, session_id || null
+    ],
     (err, result) => {
       if (err) {
         console.error('markAttendance error:', err);
@@ -171,17 +238,24 @@ exports.getAttendanceSummary = (req, res) => {
 };
 
 // ============================================
-// ✅ GET MY ATTENDANCE — userId MULA SA TOKEN
+// GET MY ATTENDANCE — with subject info
 // ============================================
 exports.getMyAttendance = (req, res) => {
   const userId = req.user.id;
 
   const query = `
-    SELECT attendance.date, attendance.status, attendance.time_in, attendance.remarks
+    SELECT 
+      attendance.date, 
+      attendance.status, 
+      attendance.time_in, 
+      attendance.remarks,
+      subjects.subject_code,
+      subjects.subject_name
     FROM attendance
     JOIN students ON attendance.student_id = students.id
+    LEFT JOIN subjects ON attendance.subject_id = subjects.id
     WHERE students.user_id = ?
-    ORDER BY attendance.date DESC
+    ORDER BY attendance.date DESC, attendance.time_in DESC
   `;
 
   db.query(query, [userId], (err, results) => {
@@ -212,15 +286,12 @@ exports.deleteAttendance = (req, res) => {
 };
 
 // ============================================
-// ✅ GENERATE CHECK-IN CODE (NEW)
-// Saves to attendance_sessions with class, subject,
-// start_time, end_time, 10-minute expiry
+// GENERATE CHECK-IN CODE (existing)
 // ============================================
 exports.generateCode = (req, res) => {
   const teacher_id = req.user.id;
   const { class_id, subject_id, start_time, end_time } = req.body;
 
-  // ✅ Validation
   if (!class_id || !subject_id || !start_time || !end_time) {
     return res.status(400).json({ message: 'class_id, subject_id, start_time, and end_time are required.' });
   }
@@ -233,7 +304,6 @@ exports.generateCode = (req, res) => {
     return res.status(400).json({ message: 'End time must be after start time.' });
   }
 
-  // ✅ Ensure the class belongs to this teacher
   const ownerCheck = 'SELECT id FROM classes WHERE id = ? AND teacher_id = ?';
   db.query(ownerCheck, [class_id, teacher_id], (err, ownerResult) => {
     if (err) {
@@ -245,7 +315,6 @@ exports.generateCode = (req, res) => {
       return res.status(404).json({ message: 'Class not found or not yours.' });
     }
 
-    // ✅ Ensure the subject belongs to this class
     const subjectCheck = 'SELECT id FROM subjects WHERE id = ? AND class_id = ?';
     db.query(subjectCheck, [subject_id, class_id], (err2, subjectResult) => {
       if (err2) {
@@ -257,11 +326,8 @@ exports.generateCode = (req, res) => {
         return res.status(404).json({ message: 'Subject not found for this class.' });
       }
 
-      // ✅ Generate unique code
       const code = Math.random().toString(36).substring(2, 8).toUpperCase();
       const today = getTodayInManila();
-
-      // ✅ 10 minutes expiry from now
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
       const insertQuery = `
@@ -293,8 +359,7 @@ exports.generateCode = (req, res) => {
 };
 
 // ============================================
-// ✅ STUDENT CHECK-IN (NEW)
-// Links to session, computes Present/Late
+// ✅ STUDENT CHECK-IN (updated — with subject_id + auto-enroll)
 // ============================================
 exports.checkIn = (req, res) => {
   const { code } = req.body;
@@ -304,7 +369,6 @@ exports.checkIn = (req, res) => {
     return res.status(400).json({ message: 'Code is required.' });
   }
 
-  // ✅ Find the active session with this code
   const sessionQuery = `
     SELECT * FROM attendance_sessions 
     WHERE code = ? AND active = 1
@@ -328,17 +392,14 @@ exports.checkIn = (req, res) => {
     const nowTimeStr = getNowTimeInManila();
     const today = getTodayInManila();
 
-    // ✅ Check if code expired
     if (new Date(session.expires_at) < now) {
       return res.status(410).json({ message: 'This code has expired.' });
     }
 
-    // ✅ Check if already past end_time (session closed)
     if (nowTimeStr > session.end_time) {
       return res.status(410).json({ message: 'This class session is already closed.' });
     }
 
-    // ✅ Get student profile
     const studentQuery = 'SELECT id FROM students WHERE user_id = ?';
     db.query(studentQuery, [user_id], (err2, studentResults) => {
       if (err2) {
@@ -351,9 +412,9 @@ exports.checkIn = (req, res) => {
       }
 
       const studentId = studentResults[0].id;
+      const subjectId = session.subject_id;
 
-      // ✅ Compute status: Present or Late
-      // Start time + 10 min = Present window
+      // ✅ Compute status
       const startTime = session.start_time;
       const [startH, startM, startS] = startTime.split(':').map(Number);
       const startDate = new Date(nowManila);
@@ -367,30 +428,47 @@ exports.checkIn = (req, res) => {
         status = 'late';
       }
 
-      // ✅ Insert or update attendance (with session_id)
-      const markQuery = `
-        INSERT INTO attendance (student_id, date, status, time_in, session_id)
-        VALUES (?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE status = ?, time_in = ?, session_id = ?
+      // ✅ Auto-enroll sa subject (kung hindi pa naka-enroll)
+      const enrollQuery = `
+        INSERT IGNORE INTO student_subjects (student_id, subject_id)
+        VALUES (?, ?)
       `;
 
-      db.query(
-        markQuery,
-        [studentId, today, status, nowTimeStr, session.id, status, nowTimeStr, session.id],
-        (err3) => {
-          if (err3) {
-            console.error('checkIn mark error:', err3);
-            return res.status(500).json({ message: 'Database error.' });
-          }
-
-          const label = status === 'present' ? 'Present' : 'Late';
-          res.status(200).json({
-            message: `Checked in successfully! You are marked ${label}.`,
-            status,
-            time_in: nowTimeStr
-          });
+      db.query(enrollQuery, [studentId, subjectId], (errEnroll) => {
+        if (errEnroll) {
+          console.error('checkIn auto-enroll error:', errEnroll);
+          // Hindi natin i-fail yung check-in, ipagpatuloy lang
         }
-      );
+
+        // ✅ Insert attendance (may subject_id at session_id)
+        const markQuery = `
+          INSERT INTO attendance (student_id, subject_id, date, status, time_in, session_id)
+          VALUES (?, ?, ?, ?, ?, ?)
+          ON DUPLICATE KEY UPDATE 
+            status = ?, 
+            time_in = ?, 
+            session_id = ?
+        `;
+
+        db.query(
+          markQuery,
+          [studentId, subjectId, today, status, nowTimeStr, session.id,
+           status, nowTimeStr, session.id],
+          (err3) => {
+            if (err3) {
+              console.error('checkIn mark error:', err3);
+              return res.status(500).json({ message: 'Database error.' });
+            }
+
+            const label = status === 'present' ? 'Present' : 'Late';
+            res.status(200).json({
+              message: `Checked in successfully! You are marked ${label}.`,
+              status,
+              time_in: nowTimeStr
+            });
+          }
+        );
+      });
     });
   });
 };

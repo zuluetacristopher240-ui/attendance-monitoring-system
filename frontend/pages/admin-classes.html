@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Manage Classes - Attendance Monitoring System">
+  <meta name="theme-color" content="#1B2A4A">
+  <title>Manage Classes - Attendance Monitoring System</title>
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/students.css">
+  <link rel="stylesheet" href="../css/sidebar.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <aside class="sidebar" id="mainSidebar">
+      <h2>AMS</h2>
+      <nav>
+        <a href="admin-dashboard.html">📊 Dashboard</a>
+        <a href="student-management.html">👥 Manage Students</a>
+        <a href="admin-classes.html" class="active">📚 Manage Classes</a>
+        <a href="attendance.html">📋 Attendance Records</a>
+        <a href="reports.html">📈 Reports</a>
+        <a href="#" id="logoutBtn">🚪 Logout</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+          <h1>Manage Classes & Subjects</h1>
+        </div>
+        <span id="welcomeUser">Welcome!</span>
+        <div id="toastContainer" class="toast-container"></div>
+      </header>
+
+      <!-- CLASSES SECTION -->
+      <div class="action-bar">
+        <button id="addClassBtn" class="btn-primary">+ Add Class</button>
+      </div>
+
+      <h2 style="margin-bottom: 12px; color: #1B2A4A; font-size: 18px;">📋 Classes</h2>
+
+      <div class="table-wrapper" style="margin-bottom: 32px;">
+        <table class="students-table">
+          <thead>
+            <tr>
+              <th>Class Code</th>
+              <th>Class Name</th>
+              <th>Year & Section</th>
+              <th>Teacher</th>
+              <th>Subjects</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="classesTableBody">
+            <tr class="loading-row">
+              <td colspan="6" style="text-align: center; padding: 40px;">
+                <div class="spinner"></div>
+                <p style="color: #999; margin-top: 10px;">Loading classes...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- SUBJECTS SECTION -->
+      <div class="action-bar" style="display: flex; gap: 12px; align-items: center;">
+        <button id="addSubjectBtn" class="btn-primary">+ Add Subject</button>
+        <select id="filterClassSelect" style="padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; min-width: 220px;">
+          <option value="">-- All Classes --</option>
+        </select>
+      </div>
+
+      <h2 style="margin-bottom: 12px; color: #1B2A4A; font-size: 18px;">📚 Subjects</h2>
+
+      <div class="table-wrapper">
+        <table class="students-table">
+          <thead>
+            <tr>
+              <th>Subject Code</th>
+              <th>Subject Name</th>
+              <th>Class</th>
+              <th>Teacher</th>
+              <th>Enrolled</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="subjectsTableBody">
+            <tr class="loading-row">
+              <td colspan="6" style="text-align: center; padding: 40px;">
+                <div class="spinner"></div>
+                <p style="color: #999; margin-top: 10px;">Loading subjects...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- ✅ CLASS MODAL -->
+  <div id="classModal" class="modal hidden">
+    <div class="modal-content">
+      <h2 id="classModalTitle">Add Class</h2>
+      <form id="classForm">
+        <input type="hidden" id="classDbId">
+        <div class="form-group">
+          <label>Class Code</label>
+          <input type="text" id="classCode" placeholder="e.g. CS-1A" required>
+        </div>
+        <div class="form-group">
+          <label>Class Name</label>
+          <input type="text" id="className" placeholder="e.g. BS Computer Science 1A" required>
+        </div>
+        <div class="form-group">
+          <label>Year Level</label>
+          <input type="text" id="classYearLevel" placeholder="e.g. 1" required>
+        </div>
+        <div class="form-group">
+          <label>Section</label>
+          <input type="text" id="classSection" placeholder="e.g. A" required>
+        </div>
+        <div class="form-group">
+          <label>Teacher</label>
+          <select id="classTeacher" required style="width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;">
+            <option value="">-- Select Teacher --</option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="cancelClassBtn" class="btn-secondary">Cancel</button>
+          <button type="submit" class="btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ✅ SUBJECT MODAL -->
+  <div id="subjectModal" class="modal hidden">
+    <div class="modal-content">
+      <h2 id="subjectModalTitle">Add Subject</h2>
+      <form id="subjectForm">
+        <input type="hidden" id="subjectDbId">
+        <div class="form-group">
+          <label>Class</label>
+          <select id="subjectClass" required style="width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;">
+            <option value="">-- Select Class --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Subject Code</label>
+          <input type="text" id="subjectCode" placeholder="e.g. CS101" required>
+        </div>
+        <div class="form-group">
+          <label>Subject Name</label>
+          <input type="text" id="subjectName" placeholder="e.g. Introduction to Computing" required>
+        </div>
+        <div class="form-group">
+          <label>Enrollment Code (optional)</label>
+          <input type="text" id="subjectEnrollmentCode" placeholder="Auto-generated kung walang laman">
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="cancelSubjectBtn" class="btn-secondary">Cancel</button>
+          <button type="submit" class="btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <noscript>
+    <div style="padding: 40px; text-align: center; background: #D64550; color: white; font-family: Arial;">
+      <h2>JavaScript Required</h2>
+      <p>Please enable JavaScript to use the Attendance Monitoring System.</p>
+    </div>
+  </noscript>
+
+  <!-- Utils — LOAD FIRST -->
+  <script src="../js/utils/escapeHtml.js"></script>
+  <script src="../js/utils/api.js"></script>
+  <script src="../js/utils/auth.js"></script>
+  <script src="../js/utils/toast.js"></script>
+  <script src="../js/utils/sidebar.js"></script>
+
+  <!-- Page-specific -->
+  <script src="../js/admin-classes.js"></script>
+</body>
+</html>

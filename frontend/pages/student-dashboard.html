@@ -9,46 +9,57 @@
   <link rel="stylesheet" href="../css/dashboard.css">
   <link rel="stylesheet" href="../css/attendance.css">
   <link rel="stylesheet" href="../css/students.css">
+  <link rel="stylesheet" href="../css/sidebar.css">
 </head>
 <body>
   <div class="dashboard-container">
-    <aside class="sidebar">
+    <aside class="sidebar" id="mainSidebar">
       <h2>AMS</h2>
       <nav>
-        <a href="student-dashboard.html" class="active">My Attendance</a>
-        <a href="#" id="logoutBtn">Logout</a>
+        <a href="student-dashboard.html" class="active">📊 My Attendance</a>
+        <a href="#" id="logoutBtn">🚪 Logout</a>
       </nav>
     </aside>
 
     <main class="main-content">
       <header class="topbar">
-        <h1>My Attendance Record</h1>
+        <div class="topbar-left">
+          <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+          <h1>My Attendance Record</h1>
+        </div>
         <span id="welcomeUser">Welcome!</span>
         <div id="toastContainer" class="toast-container"></div>
       </header>
 
-      <div class="checkin-box">
-        <h3>Enter Check-In Code</h3>
-        <div class="checkin-form">
-          <input type="text" id="checkInCode" placeholder="Enter 6-character code" maxlength="6">
-          <button id="checkInBtn" class="btn-primary">Check In</button>
-        </div>
-        <p id="checkInMessage"></p>
-      </div>
-
-      <!-- ✅ BAGONG SECTION: My Subjects -->
+      <!-- MY SUBJECTS -->
       <div class="checkin-box" style="margin-bottom: 20px;">
-        <h3>My Subjects</h3>
+        <h3>📚 My Subjects</h3>
         <div id="subjectsList" style="padding: 10px 0;">
           <p style="color: #999; font-size: 13px;">Loading subjects...</p>
         </div>
       </div>
 
+      <!-- JOIN NEW SUBJECT -->
+      <div class="checkin-box" style="margin-bottom: 20px;">
+        <h3>🔓 Join New Subject</h3>
+        <p style="font-size: 13px; color: #666; margin-bottom: 10px;">
+          Have a code from your teacher? Enter it here to join and check-in.
+        </p>
+        <div class="checkin-form">
+          <input type="text" id="joinNewCode" placeholder="Enter 6-character code" maxlength="6">
+          <button id="joinNewBtn" class="btn-primary">Join</button>
+        </div>
+        <p id="joinNewMessage"></p>
+      </div>
+
+      <!-- ATTENDANCE HISTORY -->
+      <h3 style="margin-bottom: 12px; color: #1B2A4A;">📋 My Attendance History</h3>
       <div class="table-wrapper">
         <table class="students-table">
           <thead>
             <tr>
               <th>Date</th>
+              <th>Subject</th>
               <th>Status</th>
               <th>Time In</th>
               <th>Remarks</th>
@@ -56,7 +67,7 @@
           </thead>
           <tbody id="myAttendanceTableBody">
             <tr class="loading-row">
-              <td colspan="4" style="text-align: center; padding: 40px;">
+              <td colspan="5" style="text-align: center; padding: 40px;">
                 <div class="spinner"></div>
                 <p style="color: #999; margin-top: 10px;">Loading attendance...</p>
               </td>
@@ -65,6 +76,27 @@
         </table>
       </div>
     </main>
+  </div>
+
+  <!-- ✅ JOIN CLASS MODAL -->
+  <div id="joinModal" class="modal hidden">
+    <div class="modal-content">
+      <h2 id="joinModalTitle">Join Class</h2>
+      <form id="joinForm">
+        <p style="font-size: 13px; color: #666; margin-bottom: 15px;" id="joinModalSubtitle">
+          Enter the code from your teacher.
+        </p>
+        <div class="form-group">
+          <label>Check-In Code</label>
+          <input type="text" id="joinModalCode" placeholder="e.g. ABC123" maxlength="6" required style="text-transform: uppercase; letter-spacing: 3px; font-size: 18px;">
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="cancelJoinBtn" class="btn-secondary">Cancel</button>
+          <button type="submit" class="btn-primary">Check In</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <noscript>
@@ -79,6 +111,7 @@
   <script src="../js/utils/api.js"></script>
   <script src="../js/utils/auth.js"></script>
   <script src="../js/utils/toast.js"></script>
+  <script src="../js/utils/sidebar.js"></script>
 
   <!-- Page-specific -->
   <script src="../js/student-dashboard.js"></script>

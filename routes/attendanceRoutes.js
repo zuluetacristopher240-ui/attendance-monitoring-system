@@ -17,6 +17,13 @@ router.get('/summary/report', requireRole('teacher', 'admin'), attendanceControl
 // ✅ Teacher only — generate code
 router.post('/generate-code', requireRole('teacher'), attendanceController.generateCode);
 
+// ✅ Teacher only — get students for class+subject (BAGO)
+router.get(
+  '/session/:classId/:subjectId/students',
+  requireRole('teacher', 'admin'),
+  attendanceController.getSessionStudents
+);
+
 // ✅ Student only — check-in at my attendance
 router.post('/check-in', requireRole('student'), attendanceController.checkIn);
 router.get('/my', requireRole('student'), attendanceController.getMyAttendance);

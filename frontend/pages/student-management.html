@@ -8,24 +8,30 @@
   <title>Manage Students - Attendance Monitoring System</title>
   <link rel="stylesheet" href="../css/dashboard.css">
   <link rel="stylesheet" href="../css/students.css">
+  <link rel="stylesheet" href="../css/sidebar.css">
 </head>
 <body>
   <div class="dashboard-container">
-    <aside class="sidebar">
+    <aside class="sidebar" id="mainSidebar">
       <h2>AMS</h2>
       <nav>
-        <a href="admin-dashboard.html">Dashboard</a>
-        <a href="student-management.html" class="active">Manage Students</a>
-        <a href="attendance.html">Attendance Records</a>
-        <a href="reports.html">Reports</a>
-        <a href="#" id="logoutBtn">Logout</a>
+        <a href="admin-dashboard.html">📊 Dashboard</a>
+        <a href="student-management.html" class="active">👥 Manage Students</a>
+        <a href="admin-classes.html">📚 Manage Classes</a>
+        <a href="attendance.html">📋 Attendance Records</a>
+        <a href="reports.html">📈 Reports</a>
+        <a href="#" id="logoutBtn">🚪 Logout</a>
       </nav>
     </aside>
 
     <main class="main-content">
       <header class="topbar">
-        <h1>Manage Students</h1>
+        <div class="topbar-left">
+          <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+          <h1>Manage Students</h1>
+        </div>
         <span id="welcomeUser">Welcome!</span>
+        <div id="toastContainer" class="toast-container"></div>
       </header>
 
       <div class="action-bar">
@@ -114,6 +120,7 @@
   <script src="../js/utils/api.js"></script>
   <script src="../js/utils/auth.js"></script>
   <script src="../js/utils/toast.js"></script>
+  <script src="../js/utils/sidebar.js"></script>
 
   <!-- Page-specific -->
   <script src="../js/students.js"></script>
