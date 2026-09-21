@@ -12,12 +12,13 @@ router.use(verifyToken);
 
 // ✅ Teacher + Admin
 router.get('/stats/today', requireRole('teacher', 'admin'), attendanceController.getTodayStats);
+router.get('/heatmap', requireRole('teacher', 'admin'), attendanceController.getHeatmapData);
 router.get('/summary/report', requireRole('teacher', 'admin'), attendanceController.getAttendanceSummary);
 
 // ✅ Teacher only — generate code
 router.post('/generate-code', requireRole('teacher'), attendanceController.generateCode);
 
-// ✅ Teacher only — get students for class+subject (BAGO)
+// ✅ Teacher only — get students for class+subject
 router.get(
   '/session/:classId/:subjectId/students',
   requireRole('teacher', 'admin'),

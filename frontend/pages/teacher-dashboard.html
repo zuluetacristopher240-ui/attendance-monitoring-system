@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Teacher Dashboard - Attendance Monitoring System">
-  <meta name="theme-color" content="#1B2A4A">
+  <meta name="theme-color" content="#800000">
   <title>Teacher Dashboard - Attendance Monitoring System</title>
   <link rel="stylesheet" href="../css/dashboard.css">
   <link rel="stylesheet" href="../css/attendance.css">
@@ -16,10 +16,38 @@
     <aside class="sidebar" id="mainSidebar">
       <h2>SCI</h2>
       <nav>
-        <a href="teacher-dashboard.html" class="active">📊 Dashboard</a>
-        <a href="teacher-attendance.html">✏️ Take Attendance</a>
-        <a href="#" id="logoutBtn">🚪 Logout</a>
-      </nav>
+  <a href="teacher-dashboard.html" class="active">
+    <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7" height="9" rx="1"/>
+      <rect x="14" y="3" width="7" height="5" rx="1"/>
+      <rect x="14" y="12" width="7" height="9" rx="1"/>
+      <rect x="3" y="16" width="7" height="5" rx="1"/>
+    </svg>
+    Dashboard
+  </a>
+  <a href="teacher-subjects.html">
+    <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+    </svg>
+    My Subjects
+  </a>
+  <a href="teacher-attendance.html">
+    <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="9 11 12 14 22 4"/>
+      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+    </svg>
+    Take Attendance
+  </a>
+  <a href="#" id="logoutBtn">
+    <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+      <polyline points="16 17 21 12 16 7"/>
+      <line x1="21" y1="12" x2="9" y2="12"/>
+    </svg>
+    Logout
+  </a>
+</nav>
     </aside>
 
     <main class="main-content">
@@ -51,6 +79,41 @@
         </div>
       </section>
 
+      <section class="heatmap-section">
+        <div class="heatmap-header">
+          <h2>🔥 Attendance Heatmap</h2>
+          <span id="heatmapMonth">Loading...</span>
+        </div>
+
+        <div class="heatmap-legend">
+          <span class="legend-label">Walang class:</span>
+          <span class="legend-box level-empty"></span>
+          <span class="legend-label">Low:</span>
+          <span class="legend-box level-1"></span>
+          <span class="legend-label">Mid:</span>
+          <span class="legend-box level-2"></span>
+          <span class="legend-label">High:</span>
+          <span class="legend-box level-3"></span>
+          <span class="legend-label">Very High:</span>
+          <span class="legend-box level-4"></span>
+        </div>
+
+        <div class="heatmap-wrapper">
+          <div class="heatmap-days-header">
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
+            <span>Sun</span>
+          </div>
+          <div id="heatmapGrid" class="heatmap-grid">
+            <p style="color: #999; font-size: 13px;">Loading heatmap...</p>
+          </div>
+        </div>
+      </section>
+
       <section class="recent-activity">
         <h2>Quick Actions</h2>
         <p>Use "Take Attendance" from the sidebar to mark today's attendance.</p>
@@ -65,14 +128,12 @@
     </div>
   </noscript>
 
-  <!-- Utils — LOAD FIRST -->
   <script src="../js/utils/escapeHtml.js"></script>
   <script src="../js/utils/api.js"></script>
   <script src="../js/utils/auth.js"></script>
   <script src="../js/utils/toast.js"></script>
   <script src="../js/utils/sidebar.js"></script>
 
-  <!-- Page-specific -->
   <script src="../js/teacher-dashboard.js"></script>
 </body>
 </html>

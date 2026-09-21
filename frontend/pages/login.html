@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Login - Attendance Monitoring System">
-  <meta name="theme-color" content="#1B2A4A">
-  <title>Login - Attendance Monitoring System</title>
+  <meta name="description" content="Login - Santa Cruz Institute Attendance Monitoring System">
+  <meta name="theme-color" content="#800000">
+  <title>Login - SCI Attendance Monitoring System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/login.css">
@@ -13,6 +13,7 @@
 <body>
 
   <div class="page-bg">
+    <!-- Animated background elements -->
     <div class="hero-glow"></div>
     <div class="floaters">
       <span class="floater f1">✓</span>
@@ -28,7 +29,13 @@
     <div class="page-content">
 
       <!-- ROLE SELECTOR -->
-      <div class="login-container" id="roleSelector">
+      <div class="login-container glass" id="roleSelector">
+        <div class="brand">
+          <h1 class="brand-logo">SCI</h1>
+          <p class="brand-name">Santa Cruz Institute</p>
+          <p class="brand-sub">Attendance Monitoring System</p>
+        </div>
+
         <h2>Welcome back</h2>
         <p class="subtitle">Please select your role to continue</p>
 
@@ -48,22 +55,46 @@
       </div>
 
       <!-- LOGIN FORM -->
-      <div class="login-container hidden" id="loginFormContainer">
+      <div class="login-container glass hidden" id="loginFormContainer">
+        <div class="brand-mini">
+          <span class="brand-mini-logo">SCI</span>
+        </div>
         <h2 id="loginTitle">Login</h2>
+        <p class="subtitle" id="loginSubtitle">Enter your credentials</p>
+
         <form id="loginForm">
           <div class="form-group">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" 
                    autocomplete="username" required autofocus>
           </div>
+
           <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" 
-                   autocomplete="current-password" required>
+            <div class="password-wrapper">
+              <input type="password" id="password" name="password" 
+                     autocomplete="current-password" required>
+              <button type="button" class="password-toggle" id="togglePassword" aria-label="Show password">
+                <span class="eye-icon">👁</span>
+              </button>
+            </div>
           </div>
-          <button type="submit">Login</button>
+
+          <div class="form-row">
+            <label class="checkbox-label">
+              <input type="checkbox" id="rememberMe">
+              <span>Remember me</span>
+            </label>
+            <a href="#" class="forgot-link" id="forgotPasswordLink">Forgot password?</a>
+          </div>
+
+          <button type="submit" id="loginSubmitBtn">
+            <span class="btn-text">Login</span>
+            <span class="btn-spinner hidden">⏳</span>
+          </button>
+
           <p id="errorMessage" class="error"></p>
-          <p class="back-link"><a href="#" id="backBtn">← Back</a></p>
+          <p class="back-link"><a href="#" id="backBtn">← Back to role selection</a></p>
         </form>
       </div>
 

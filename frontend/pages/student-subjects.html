@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="My Attendance - SCI Attendance Monitoring System">
+  <meta name="description" content="My Subjects - SCI Attendance Monitoring System">
   <meta name="theme-color" content="#800000">
-  <title>My Attendance - SCI Attendance Monitoring System</title>
+  <title>My Subjects - SCI Attendance Monitoring System</title>
   <link rel="stylesheet" href="../css/dashboard.css">
   <link rel="stylesheet" href="../css/attendance.css">
   <link rel="stylesheet" href="../css/students.css">
@@ -16,7 +16,7 @@
     <aside class="sidebar" id="mainSidebar">
       <h2>SCI</h2>
       <nav>
-        <a href="student-dashboard.html" class="active">
+        <a href="student-dashboard.html">
           <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
             <rect x="8" y="2" width="8" height="4" rx="1"/>
@@ -25,7 +25,7 @@
           </svg>
           My Attendance
         </a>
-        <a href="student-subjects.html">
+        <a href="student-subjects.html" class="active">
           <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
@@ -47,42 +47,54 @@
       <header class="topbar">
         <div class="topbar-left">
           <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
-          <h1>My Attendance Record</h1>
+          <h1>My Subjects</h1>
         </div>
         <span id="welcomeUser">Welcome!</span>
         <div id="toastContainer" class="toast-container"></div>
       </header>
 
-      <!-- MY ATTENDANCE HISTORY -->
+      <!-- MY SUBJECTS SECTION -->
       <div class="checkin-box" style="margin-bottom: 20px;">
-        <h3>📋 My Attendance History</h3>
-        <p style="font-size: 13px; color: #666; margin-bottom: 12px;">
-          Lahat ng iyong attendance records — present, late, at absent.
-        </p>
+        <h3>📚 Enrolled Subjects</h3>
+        <div id="subjectsList" style="padding: 10px 0;">
+          <p style="color: #999; font-size: 13px;">Loading subjects...</p>
+        </div>
       </div>
 
-      <div class="table-wrapper">
-        <table class="students-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Subject</th>
-              <th>Status</th>
-              <th>Time In</th>
-              <th>Remarks</th>
-            </tr>
-          </thead>
-          <tbody id="myAttendanceTableBody">
-            <tr class="loading-row">
-              <td colspan="5" style="text-align: center; padding: 40px;">
-                <div class="spinner"></div>
-                <p style="color: #999; margin-top: 10px;">Loading attendance...</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- JOIN NEW SUBJECT SECTION -->
+      <div class="checkin-box" style="margin-bottom: 20px;">
+        <h3>🔓 Join New Subject</h3>
+        <p style="font-size: 13px; color: #666; margin-bottom: 10px;">
+          Have a code from your teacher? Enter it here to join and check-in.
+        </p>
+        <div class="checkin-form">
+          <input type="text" id="joinNewCode" placeholder="Enter 6-character code" maxlength="6">
+          <button id="joinNewBtn" class="btn-primary">Join</button>
+        </div>
+        <p id="joinNewMessage"></p>
       </div>
     </main>
+  </div>
+
+  <!-- ✅ JOIN CLASS MODAL -->
+  <div id="joinModal" class="modal hidden">
+    <div class="modal-content">
+      <h2 id="joinModalTitle">Join Class</h2>
+      <form id="joinForm">
+        <p style="font-size: 13px; color: #666; margin-bottom: 15px;" id="joinModalSubtitle">
+          Enter the code from your teacher.
+        </p>
+        <div class="form-group">
+          <label>Check-In Code</label>
+          <input type="text" id="joinModalCode" placeholder="e.g. ABC123" maxlength="6" required style="text-transform: uppercase; letter-spacing: 3px; font-size: 18px;">
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="cancelJoinBtn" class="btn-secondary">Cancel</button>
+          <button type="submit" class="btn-primary">Check In</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <noscript>
@@ -100,6 +112,6 @@
   <script src="../js/utils/sidebar.js"></script>
 
   <!-- Page-specific -->
-  <script src="../js/student-dashboard.js"></script>
+  <script src="../js/student-subjects.js"></script>
 </body>
 </html>

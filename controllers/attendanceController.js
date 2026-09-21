@@ -25,7 +25,7 @@ function getNowTimeInManila() {
 }
 
 // ============================================
-// GET ATTENDANCE FOR A SPECIFIC DATE (existing)
+// GET ATTENDANCE FOR A SPECIFIC DATE
 // ============================================
 exports.getAttendanceByDate = (req, res) => {
   const { date } = req.params;
@@ -57,7 +57,6 @@ exports.getAttendanceByDate = (req, res) => {
 
 // ============================================
 // ✅ BAGO: GET STUDENTS FOR A CLASS+SUBJECT
-// Returns enrolled students + attendance status for today
 // ============================================
 exports.getSessionStudents = (req, res) => {
   const { classId, subjectId } = req.params;
@@ -71,7 +70,6 @@ exports.getSessionStudents = (req, res) => {
     return res.status(400).json({ message: 'Invalid class or subject ID.' });
   }
 
-  // ✅ Verify teacher owns the class
   const ownerCheck = 'SELECT id FROM classes WHERE id = ? AND teacher_id = ?';
   db.query(ownerCheck, [parsedClassId, teacherId], (err, ownerResult) => {
     if (err) {
@@ -83,7 +81,6 @@ exports.getSessionStudents = (req, res) => {
       return res.status(404).json({ message: 'Class not found or not yours.' });
     }
 
-    // ✅ Get enrolled students + attendance status
     const query = `
       SELECT 
         students.id AS student_id,
@@ -116,7 +113,7 @@ exports.getSessionStudents = (req, res) => {
 };
 
 // ============================================
-// MARK ATTENDANCE (updated — may subject_id at session_id)
+// MARK ATTENDANCE
 // ============================================
 exports.markAttendance = (req, res) => {
   const { student_id, date, status, time_in, remarks, subject_id, session_id } = req.body;
@@ -154,7 +151,7 @@ exports.markAttendance = (req, res) => {
       student_id, subject_id || null, date, status, time_in || null, remarks || null, session_id || null,
       status, time_in || null, remarks || null, session_id || null
     ],
-    (err, result) => {
+    (err) => {
       if (err) {
         console.error('markAttendance error:', err);
         return res.status(500).json({ message: 'Database error.' });
@@ -195,6 +192,97 @@ exports.getTodayStats = (req, res) => {
       }
       stats.totalStudents = totalResult[0].total;
       res.status(200).json(stats);
+    });
+  });
+};
+
+// ============================================
+// ✅ BAGO: GET HEATMAP DATA
+// ============================================
+exports.getHeatmapData = (req, res) => {
+  const now = new Date();
+  const manilaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+  const year = manilaTime.getFullYear();
+  const month = manilaTime.getMonth() + 1;
+
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const firstDay = `${year}-${String(month).padStart(2, '0')}-01`;
+  const lastDay = `${year}-${String(month).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
+
+  const attendanceQuery = `
+    SELECT 
+      date,
+      COUNT(CASE WHEN status = 'present' THEN 1 END) AS present_count,
+      COUNT(CASE WHEN status = 'late' THEN 1 END) AS late_count,
+      COUNT(CASE WHEN status = 'absent' THEN 1 END) AS absent_count,
+      COUNT(*) AS total_count
+    FROM attendance
+    WHERE date BETWEEN ? AND ?
+    GROUP BY date
+    ORDER BY date ASC
+  `;
+
+  db.query(attendanceQuery, [firstDay, lastDay], (err, results) => {
+    if (err) {
+      console.error('getHeatmapData error:', err);
+      return res.status(500).json({ message: 'Database error.' });
+    }
+
+    const studentQuery = 'SELECT COUNT(*) AS total_students FROM students';
+    db.query(studentQuery, (err2, studentResult) => {
+      if (err2) {
+        console.error('getHeatmapData student count error:', err2);
+        return res.status(500).json({ message: 'Database error.' });
+      }
+
+      const totalStudents = studentResult[0].total_students || 0;
+
+      const dataByDate = {};
+      results.forEach(r => {
+        dataByDate[r.date] = r;
+      });
+
+      const heatmapData = [];
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const record = dataByDate[dateStr];
+
+        let presentCount = 0;
+        let lateCount = 0;
+        let absentCount = 0;
+        let marked = 0;
+
+        if (record) {
+          presentCount = record.present_count || 0;
+          lateCount = record.late_count || 0;
+          absentCount = record.absent_count || 0;
+          marked = presentCount + lateCount + absentCount;
+        }
+
+        let rate = 0;
+        if (totalStudents > 0) {
+          rate = Math.round(((presentCount + lateCount) / totalStudents) * 100);
+        }
+
+        heatmapData.push({
+          date: dateStr,
+          day: day,
+          present: presentCount,
+          late: lateCount,
+          absent: absentCount,
+          marked: marked,
+          total: totalStudents,
+          rate: rate
+        });
+      }
+
+      res.status(200).json({
+        year: year,
+        month: month,
+        monthName: manilaTime.toLocaleString('en-US', { month: 'long' }),
+        totalStudents: totalStudents,
+        days: heatmapData
+      });
     });
   });
 };
@@ -286,7 +374,7 @@ exports.deleteAttendance = (req, res) => {
 };
 
 // ============================================
-// GENERATE CHECK-IN CODE (existing)
+// GENERATE CHECK-IN CODE
 // ============================================
 exports.generateCode = (req, res) => {
   const teacher_id = req.user.id;
@@ -359,7 +447,7 @@ exports.generateCode = (req, res) => {
 };
 
 // ============================================
-// ✅ STUDENT CHECK-IN (updated — with subject_id + auto-enroll)
+// STUDENT CHECK-IN
 // ============================================
 exports.checkIn = (req, res) => {
   const { code } = req.body;
@@ -414,7 +502,6 @@ exports.checkIn = (req, res) => {
       const studentId = studentResults[0].id;
       const subjectId = session.subject_id;
 
-      // ✅ Compute status
       const startTime = session.start_time;
       const [startH, startM, startS] = startTime.split(':').map(Number);
       const startDate = new Date(nowManila);
@@ -428,7 +515,6 @@ exports.checkIn = (req, res) => {
         status = 'late';
       }
 
-      // ✅ Auto-enroll sa subject (kung hindi pa naka-enroll)
       const enrollQuery = `
         INSERT IGNORE INTO student_subjects (student_id, subject_id)
         VALUES (?, ?)
@@ -437,10 +523,8 @@ exports.checkIn = (req, res) => {
       db.query(enrollQuery, [studentId, subjectId], (errEnroll) => {
         if (errEnroll) {
           console.error('checkIn auto-enroll error:', errEnroll);
-          // Hindi natin i-fail yung check-in, ipagpatuloy lang
         }
 
-        // ✅ Insert attendance (may subject_id at session_id)
         const markQuery = `
           INSERT INTO attendance (student_id, subject_id, date, status, time_in, session_id)
           VALUES (?, ?, ?, ?, ?, ?)
