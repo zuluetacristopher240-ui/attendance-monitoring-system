@@ -33,7 +33,6 @@ async function loadTeachers() {
   try {
     allTeachers = await API.get('/api/admin/teachers');
 
-    // ✅ Fill yung class modal dropdown
     classTeacherSelect.innerHTML = '<option value="">-- Select Teacher --</option>';
     allTeachers.forEach(t => {
       const opt = document.createElement('option');
@@ -56,7 +55,6 @@ async function loadClasses() {
 
     classesTableBody.innerHTML = '';
 
-    // ✅ Fill yung filter at subject modal dropdown
     filterClassSelect.innerHTML = '<option value="">-- All Classes --</option>';
     subjectClassSelect.innerHTML = '<option value="">-- Select Class --</option>';
 
@@ -76,19 +74,16 @@ async function loadClasses() {
     }
 
     allClasses.forEach(c => {
-      // ✅ Fill filter dropdown
       const opt1 = document.createElement('option');
       opt1.value = c.id;
       opt1.textContent = `${c.class_code} — ${c.class_name}`;
       filterClassSelect.appendChild(opt1);
 
-      // ✅ Fill subject modal dropdown
       const opt2 = document.createElement('option');
       opt2.value = c.id;
       opt2.textContent = `${c.class_code} — ${c.class_name}`;
       subjectClassSelect.appendChild(opt2);
 
-      // ✅ Render row
       const row = document.createElement('tr');
       row.innerHTML = `
         <td>${escapeHtml(c.class_code)}</td>
@@ -172,7 +167,7 @@ async function loadSubjects(classId = '') {
 }
 
 // ============================================
-// ✅ CLASS MODAL — OPEN (Add)
+// ✅ CLASS MODAL — Add
 // ============================================
 document.getElementById('addClassBtn').addEventListener('click', () => {
   classModalTitle.textContent = 'Add Class';
@@ -181,7 +176,7 @@ document.getElementById('addClassBtn').addEventListener('click', () => {
   classModal.classList.remove('hidden');
 });
 
-// ✅ CLASS MODAL — OPEN (Edit)
+// ✅ CLASS MODAL — Edit / Delete
 classesTableBody.addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-action]');
   if (!btn) return;
@@ -225,50 +220,50 @@ classForm.addEventListener('submit', async (e) => {
   try {
     if (dbId) {
       await API.put(`/api/admin/classes/${dbId}`, data);
-      showToast('Class updated!', 'present');
+      showToast('✅ Class updated!', 'present');
     } else {
       await API.post('/api/admin/classes', data);
-      showToast('Class created!', 'present');
+      showToast('✅ Class created!', 'present');
     }
     classModal.classList.add('hidden');
     loadClasses();
   } catch (error) {
     console.error('Error saving class:', error);
-    showToast(error.message, 'absent');
+    showToast('❌ ' + error.message, 'absent');
   }
 });
 
 // ============================================
-// ✅ DELETE CLASS
+// ✅ DELETE CLASS (CASCADE)
 // ============================================
 async function deleteClass(id) {
-  if (!confirm('Are you sure you want to delete this class?')) return;
+  if (!confirm('⚠️ Sigurado ka bang gusto mong i-delete ang class na ito?\n\nLahat ng subjects nito ay mabubura rin.')) return;
   try {
     await API.delete(`/api/admin/classes/${id}`);
-    showToast('Class deleted!', 'present');
+    showToast('✅ Class at subjects deleted!', 'present');
     loadClasses();
+    loadSubjects(filterClassSelect.value);
   } catch (error) {
     console.error('Error deleting class:', error);
-    showToast(error.message, 'absent');
+    showToast('❌ ' + error.message, 'absent');
   }
 }
 
 // ============================================
-// ✅ SUBJECT MODAL — OPEN (Add)
+// ✅ SUBJECT MODAL — Add
 // ============================================
 document.getElementById('addSubjectBtn').addEventListener('click', () => {
   subjectModalTitle.textContent = 'Add Subject';
   subjectForm.reset();
   document.getElementById('subjectDbId').value = '';
 
-  // ✅ Kung may class filter, i-set na
   const filterValue = filterClassSelect.value;
   if (filterValue) subjectClassSelect.value = filterValue;
 
   subjectModal.classList.remove('hidden');
 });
 
-// ✅ SUBJECT MODAL — Event delegation
+// ✅ SUBJECT MODAL — Edit / Delete
 subjectsTableBody.addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-action]');
   if (!btn) return;
@@ -284,7 +279,7 @@ subjectsTableBody.addEventListener('click', (e) => {
     document.getElementById('subjectName').value = subjectData.subject_name;
     document.getElementById('subjectEnrollmentCode').value = subjectData.enrollment_code || '';
     subjectClassSelect.value = subjectData.class_id;
-    subjectClassSelect.disabled = true; // Hindi pwedeng palitan yung class sa edit
+    subjectClassSelect.disabled = true;
     subjectModal.classList.remove('hidden');
   } else if (action === 'delete-subject') {
     deleteSubject(btn.dataset.id);
@@ -312,18 +307,18 @@ subjectForm.addEventListener('submit', async (e) => {
   try {
     if (dbId) {
       await API.put(`/api/admin/subjects/${dbId}`, data);
-      showToast('Subject updated!', 'present');
+      showToast('✅ Subject updated!', 'present');
     } else {
       const result = await API.post('/api/admin/subjects', data);
-      showToast(`Subject created! Code: ${result.enrollment_code}`, 'present');
+      showToast(`✅ Subject created! Code: ${result.enrollment_code}`, 'present');
     }
     subjectModal.classList.add('hidden');
     subjectClassSelect.disabled = false;
     loadSubjects(filterClassSelect.value);
-    loadClasses(); // Refresh para updated yung subject_count
+    loadClasses();
   } catch (error) {
     console.error('Error saving subject:', error);
-    showToast(error.message, 'absent');
+    showToast('❌ ' + error.message, 'absent');
   }
 });
 
@@ -331,15 +326,15 @@ subjectForm.addEventListener('submit', async (e) => {
 // ✅ DELETE SUBJECT
 // ============================================
 async function deleteSubject(id) {
-  if (!confirm('Are you sure you want to delete this subject?')) return;
+  if (!confirm('Sigurado ka bang gusto mong i-delete ang subject na ito?')) return;
   try {
     await API.delete(`/api/admin/subjects/${id}`);
-    showToast('Subject deleted!', 'present');
+    showToast('✅ Subject deleted!', 'present');
     loadSubjects(filterClassSelect.value);
     loadClasses();
   } catch (error) {
     console.error('Error deleting subject:', error);
-    showToast(error.message, 'absent');
+    showToast('❌ ' + error.message, 'absent');
   }
 }
 

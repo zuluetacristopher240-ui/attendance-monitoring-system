@@ -115,29 +115,21 @@ exports.updateClass = (req, res) => {
 };
 
 // ============================================
-// ✅ DELETE CLASS
+// ✅ DELETE CLASS (CASCADE — auto-delete subjects)
 // ============================================
 exports.deleteClass = (req, res) => {
   const { id } = req.params;
 
-  // ✅ Check kung may subjects o students
-  const checkQuery = `
-    SELECT 
-      (SELECT COUNT(*) FROM subjects WHERE class_id = ?) AS subject_count
-  `;
+  // ✅ Step 1: Delete subjects first (cascade)
+  const deleteSubjectsQuery = 'DELETE FROM subjects WHERE class_id = ?';
 
-  db.query(checkQuery, [id], (err, result) => {
+  db.query(deleteSubjectsQuery, [id], (err) => {
     if (err) {
-      console.error('deleteClass check error:', err);
+      console.error('deleteClass subjects error:', err);
       return res.status(500).json({ message: 'Database error.' });
     }
 
-    if (result[0].subject_count > 0) {
-      return res.status(400).json({ 
-        message: `Cannot delete: may ${result[0].subject_count} subject(s) pa. Delete subjects first.`
-      });
-    }
-
+    // ✅ Step 2: Delete yung class
     const deleteQuery = 'DELETE FROM classes WHERE id = ?';
     db.query(deleteQuery, [id], (err2, deleteResult) => {
       if (err2) {
@@ -147,7 +139,7 @@ exports.deleteClass = (req, res) => {
       if (deleteResult.affectedRows === 0) {
         return res.status(404).json({ message: 'Class not found.' });
       }
-      res.status(200).json({ message: 'Class deleted!' });
+      res.status(200).json({ message: 'Class at subjects deleted!' });
     });
   });
 };
@@ -204,7 +196,6 @@ exports.createSubject = (req, res) => {
     return res.status(400).json({ message: 'Class, subject code, at subject name are required.' });
   }
 
-  // ✅ Get teacher_id from class
   const classQuery = 'SELECT teacher_id FROM classes WHERE id = ?';
   db.query(classQuery, [class_id], (err, classResult) => {
     if (err) {
@@ -218,7 +209,6 @@ exports.createSubject = (req, res) => {
 
     const teacher_id = classResult[0].teacher_id;
 
-    // ✅ Auto-generate enrollment_code kung wala
     let finalEnrollmentCode = enrollment_code;
     if (!finalEnrollmentCode) {
       finalEnrollmentCode = 'ENR-' + subject_code.toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -267,16 +257,13 @@ exports.updateSubject = (req, res) => {
     WHERE id = ?
   `;
 
-  db.query(query, [subject_code, subject_name, enrollment_code || null, id], (err, result) => {
+  db.query(query, [subject_code, subject_name, enrollment_code || null, id], (err) => {
     if (err) {
       console.error('updateSubject error:', err);
       if (err.code === 'ER_DUP_ENTRY') {
         return res.status(409).json({ message: 'Subject code already exists.' });
       }
       return res.status(500).json({ message: 'Database error.' });
-    }
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Subject not found.' });
     }
     res.status(200).json({ message: 'Subject updated!' });
   });
@@ -288,7 +275,6 @@ exports.updateSubject = (req, res) => {
 exports.deleteSubject = (req, res) => {
   const { id } = req.params;
 
-  // ✅ Check kung may enrolled students
   const checkQuery = 'SELECT COUNT(*) AS count FROM student_subjects WHERE subject_id = ?';
   db.query(checkQuery, [id], (err, result) => {
     if (err) {
