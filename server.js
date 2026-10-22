@@ -18,7 +18,7 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
-const app = express();
+app.set('trust proxy', 1);
 
 const authRoutes = require('./routes/authRoutes');
 const studentRoutes = require('./routes/studentRoutes.js');
