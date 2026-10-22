@@ -8,7 +8,10 @@ const connection = mysql.createConnection({
   database: process.env.DB_NAME,
   port: process.env.DB_PORT,
   connectTimeout: 20000,
-  ssl: "Amazon RDS" // <--- ITO YUNG FIX PARA SA AIVEN
+  ssl: {
+    minVersion: 'TLSv1.2',
+    rejectUnauthorized: true
+  }
 });
 
 connection.connect((err) => {
@@ -16,7 +19,7 @@ connection.connect((err) => {
     console.error('Database connection failed:', err.message);
     return;
   }
-  console.log('Connected to MySQL database successfully!');
+  console.log('Connected to TiDB database successfully!');
 });
 
 module.exports = connection;
