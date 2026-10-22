@@ -7,9 +7,8 @@ const connection = mysql.createConnection({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   port: process.env.DB_PORT,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  connectTimeout: 20000, // 20 seconds timeout para sa Vercel
+  ssl: "Amazon RDS" // Ito yung tamang SSL config para sa Aiven
 });
 
 connection.connect((err) => {
