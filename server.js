@@ -1,4 +1,6 @@
-require('dotenv').config();
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 
 if (!process.env.JWT_SECRET) {
   console.error('FATAL: JWT_SECRET is not set!');
