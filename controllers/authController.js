@@ -157,4 +157,48 @@ exports.login = async (req, res) => {
     console.error('login error:', error);
     res.status(500).json({ message: 'Database error. Please try again.' });
   }
+ exports.updateAdminProfile = async (req, res) => {
+  const userId = req.user.id;
+  const { newUsername, newPassword } = req.body;
+
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Only admins can update their profile here.' });
+  }
+
+  try {
+    if (!newUsername && !newPassword) {
+      return res.status(400).json({ message: 'Provide a new username or password.' });
+    }
+
+    let query = 'UPDATE users SET ';
+    let params = [];
+    
+    if (newUsername) {
+      query += 'username = ?';
+      params.push(newUsername);
+    }
+    
+    if (newPassword) {
+      if (newUsername) query += ', ';
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      query += 'password = ?';
+      params.push(hashedPassword);
+    }
+
+    query += ' WHERE id = ?';
+    params.push(userId);
+
+    await db.promise().query(query, params);
+    
+    res.status(200).json({ message: 'Profile updated successfully!' });
+
+  } catch (error) {
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ message: 'Username already exists.' });
+    }
+    console.error('updateAdminProfile error:', error);
+    res.status(500).json({ message: 'Database error.' });
+  }
+}; 
+
 };

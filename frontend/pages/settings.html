@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Settings - Admin</title>
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/students.css">
+  <link rel="stylesheet" href="../css/sidebar.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <aside class="sidebar" id="mainSidebar">
+      <h2>SCI</h2>
+      <nav>
+        <a href="admin-dashboard.html">📊 Dashboard</a>
+        <a href="student-management.html">👥 Manage Students</a>
+        <a href="admin-classes.html">📚 Manage Classes</a>
+        <a href="attendance.html">📋 Attendance Records</a>
+        <a href="reports.html">📈 Reports</a>
+        <a href="settings.html" class="active">⚙️ Settings</a>
+        <a href="#" id="logoutBtn">🚪 Logout</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+          <h1>Account Settings</h1>
+        </div>
+        <span id="welcomeUser">Welcome!</span>
+        <div id="toastContainer" class="toast-container"></div>
+      </header>
+
+      <div class="checkin-box" style="max-width: 500px;">
+        <h3>Change Username / Password</h3>
+        <form id="settingsForm" style="margin-top: 15px;">
+          <div class="form-group">
+            <label>New Username (Leave blank to keep current)</label>
+            <input type="text" id="newUsername" placeholder="Enter new username">
+          </div>
+          <div class="form-group">
+            <label>New Password (Leave blank to keep current)</label>
+            <input type="password" id="newPassword" placeholder="Enter new password">
+          </div>
+          <button type="submit" class="btn-primary" style="margin-top: 15px;">Update Profile</button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/utils/api.js"></script>
+  <script src="../js/utils/auth.js"></script>
+  <script src="../js/utils/toast.js"></script>
+  <script src="../js/utils/sidebar.js"></script>
+  <script>
+    const user = requireAuth(['admin']);
+    setupLogout();
+
+    document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const newUsername = document.getElementById('newUsername').value.trim();
+      const newPassword = document.getElementById('newPassword').value;
+
+      if (!newUsername && !newPassword) {
+        showToast('Please enter a new username or password.', 'late');
+        return;
+      }
+
+      try {
+        await API.put('/api/auth/update-admin', { newUsername, newPassword });
+        showToast('✅ Profile updated! Please login again.', 'present');
+        
+        setTimeout(() => {
+          clearAuth();
+          window.location.href = 'login.html';
+        }, 2000);
+
+      } catch (error) {
+        showToast('❌ ' + error.message, 'absent');
+      }
+    });
+  </script>
+</body>
+</html>
