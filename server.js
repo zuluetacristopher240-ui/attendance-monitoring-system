@@ -1,6 +1,4 @@
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-}
+require('dotenv').config();
 
 if (!process.env.JWT_SECRET) {
   console.error('FATAL: JWT_SECRET is not set!');
@@ -56,7 +54,6 @@ app.use(cors({
 }));
 
 app.use(express.json());
-app.use(express.static(path.join(process.cwd(), 'frontend')));
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -85,21 +82,24 @@ app.use('/api', classRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/teacher', teacherRoutes);
 
+app.use('/css', express.static(path.join(__dirname, 'frontend', 'css')));
+app.use('/js', express.static(path.join(__dirname, 'frontend', 'js')));
+app.use('/pages', express.static(path.join(__dirname, 'frontend', 'pages')));
+app.use(express.static(path.join(__dirname, 'frontend')));
+
 app.get('/', (req, res) => {
-  res.sendFile(path.join(process.cwd(), 'frontend', 'pages', 'login.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'pages', 'login.html'));
 });
 
 app.get('/:page.html', (req, res) => {
   const pageName = req.params.page;
-  const filePath = path.join(process.cwd(), 'frontend', 'pages', `${pageName}.html`);
+  const filePath = path.join(__dirname, 'frontend', 'pages', `${pageName}.html`);
   res.sendFile(filePath, (err) => {
     if (err) {
       res.status(404).send('Page not found');
     }
   });
 });
-
-app.use('/pages', express.static(path.join(process.cwd(), 'frontend', 'pages')));
 
 if (!IS_VERCEL) {
   app.listen(PORT, () => {
