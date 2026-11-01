@@ -1,5 +1,8 @@
 const db = require('../config/db');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
+
+
+
 exports.getAllStudents = (req, res) => {
   const query = 'SELECT * FROM students ORDER BY created_at DESC';
   db.query(query, (err, results) => {
@@ -9,7 +12,10 @@ exports.getAllStudents = (req, res) => {
     }
     res.status(200).json(results);
   });
-};
+};
+
+
+
 exports.getStudentById = (req, res) => {
   const { id } = req.params;
   const query = 'SELECT * FROM students WHERE id = ?';
@@ -23,21 +29,27 @@ exports.getStudentById = (req, res) => {
     }
     res.status(200).json(results[0]);
   });
-};
+};
+
+
+
 exports.createStudent = async (req, res) => {
   const connection = await db.promise().getConnection();
 
   try {
     await connection.beginTransaction();
 
-    const { student_id, full_name, year_level, section, email, username, password } = req.body;
+    const { student_id, full_name, year_level, section, email, username, password } = req.body;
+
     if (!student_id || !full_name || !year_level || !section) {
       await connection.rollback();
       return res.status(400).json({ message: 'Required fields are missing.' });
     }
 
-    let userId = null;
-    if (username && password) {
+    let userId = null;
+
+    if (username && password) {
+
       if (password.length < 8) {
         await connection.rollback();
         return res.status(400).json({ message: 'Password must be at least 8 characters.' });
@@ -51,7 +63,8 @@ exports.createStudent = async (req, res) => {
       );
 
       userId = userResult.insertId;
-    }
+    }
+
     await connection.query(
       'INSERT INTO students (student_id, full_name, year_level, section, email, user_id) VALUES (?, ?, ?, ?, ?, ?)',
       [student_id, full_name, year_level, section, email || null, userId]
@@ -76,10 +89,14 @@ exports.createStudent = async (req, res) => {
   } finally {
     connection.release();
   }
-};
+};
+
+
+
 exports.updateStudent = (req, res) => {
   const { id } = req.params;
-  const { student_id, full_name, year_level, section, email } = req.body;
+  const { student_id, full_name, year_level, section, email } = req.body;
+
   if (!student_id || !full_name || !year_level || !section) {
     return res.status(400).json({ message: 'Required fields are missing.' });
   }
@@ -98,7 +115,10 @@ exports.updateStudent = (req, res) => {
     }
     res.status(200).json({ message: 'Student updated successfully!' });
   });
-};
+};
+
+
+
 exports.deleteStudent = (req, res) => {
   const { id } = req.params;
   const query = 'DELETE FROM students WHERE id = ?';
