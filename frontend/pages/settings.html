@@ -4,22 +4,60 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Account Settings - Admin</title>
-  <link rel="stylesheet" href="../css/dashboard.css">
-  <link rel="stylesheet" href="../css/students.css">
-  <link rel="stylesheet" href="../css/sidebar.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/students.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
 </head>
 <body>
   <div class="dashboard-container">
     <aside class="sidebar" id="mainSidebar">
       <h2>SCI</h2>
       <nav>
-        <a href="admin-dashboard.html">📊 Dashboard</a>
-        <a href="student-management.html">👥 Manage Students</a>
-        <a href="admin-classes.html">📚 Manage Classes</a>
-        <a href="attendance.html">📋 Attendance Records</a>
-        <a href="reports.html">📈 Reports</a>
-        <a href="settings.html" class="active">⚙️ Settings</a>
-        <a href="#" id="logoutBtn">🚪 Logout</a>
+        <a href="admin-dashboard.html">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="9" rx="1"/>
+            <rect x="14" y="3" width="7" height="5" rx="1"/>
+            <rect x="14" y="12" width="7" height="9" rx="1"/>
+            <rect x="3" y="16" width="7" height="5" rx="1"/>
+          </svg>
+          Dashboard
+        </a>
+        <a href="student-management.html">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          Manage Students
+        </a>
+        <a href="admin-classes.html">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+          Manage Classes
+        </a>
+        <a href="attendance.html">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 12h6"/><path d="M9 16h6"/>
+          </svg>
+          Attendance Records
+        </a>
+        <a href="reports.html">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+          Reports
+        </a>
+        <a href="settings.html" class="active">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          Settings
+        </a>
+        <a href="#" id="logoutBtn">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Logout
+        </a>
       </nav>
     </aside>
 
@@ -38,22 +76,22 @@
         <form id="settingsForm" style="margin-top: 15px;">
           <div class="form-group">
             <label>New Username (Leave blank to keep current)</label>
-            <input type="text" id="newUsername" placeholder="Enter new username">
+            <input type="text" id="newUsername" placeholder="Enter new username" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
           </div>
-          <div class="form-group">
+          <div class="form-group" style="margin-top: 15px;">
             <label>New Password (Leave blank to keep current)</label>
-            <input type="password" id="newPassword" placeholder="Enter new password">
+            <input type="password" id="newPassword" placeholder="Enter new password" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
           </div>
-          <button type="submit" class="btn-primary" style="margin-top: 15px;">Update Profile</button>
+          <button type="submit" class="btn-primary" style="margin-top: 20px;">Update Profile</button>
         </form>
       </div>
     </main>
   </div>
 
-  <script src="../js/utils/api.js"></script>
-  <script src="../js/utils/auth.js"></script>
-  <script src="../js/utils/toast.js"></script>
-  <script src="../js/utils/sidebar.js"></script>
+  <script src="/js/utils/api.js"></script>
+  <script src="/js/utils/auth.js"></script>
+  <script src="/js/utils/toast.js"></script>
+  <script src="/js/utils/sidebar.js"></script>
   <script>
     const user = requireAuth(['admin']);
     setupLogout();
@@ -74,7 +112,7 @@
         
         setTimeout(() => {
           clearAuth();
-          window.location.href = 'login.html';
+          window.location.href = '/pages/login.html';
         }, 2000);
 
       } catch (error) {
