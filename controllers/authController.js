@@ -2,37 +2,19 @@ const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-
-
-
 function validatePassword(password) {
-  if (password.length < 8) {
-    return 'Password must be at least 8 characters.';
-  }
-  if (!/[A-Z]/.test(password)) {
-    return 'Password must contain an uppercase letter.';
-  }
-  if (!/[a-z]/.test(password)) {
-    return 'Password must contain a lowercase letter.';
-  }
-  if (!/[0-9]/.test(password)) {
-    return 'Password must contain a number.';
-  }
+  if (password.length < 8) return 'Password must be at least 8 characters.';
+  if (!/[A-Z]/.test(password)) return 'Password must contain an uppercase letter.';
+  if (!/[a-z]/.test(password)) return 'Password must contain a lowercase letter.';
+  if (!/[0-9]/.test(password)) return 'Password must contain a number.';
   return null;
 }
 
 function validateUsername(username) {
-  if (username.length < 3) {
-    return 'Username must be at least 3 characters.';
-  }
-  if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-    return 'Username can only contain letters, numbers, and underscores.';
-  }
+  if (username.length < 3) return 'Username must be at least 3 characters.';
+  if (!/^[a-zA-Z0-9_]+$/.test(username)) return 'Username can only contain letters, numbers, and underscores.';
   return null;
 }
-
-
-
 
 exports.register = async (req, res) => {
   let connection;
@@ -66,9 +48,7 @@ exports.register = async (req, res) => {
 
     if (role === 'student' && (!student_id || !year_level || !section)) {
       await connection.rollback();
-      return res.status(400).json({ 
-        message: 'Student ID, year level, and section are required for student sign up.' 
-      });
+      return res.status(400).json({ message: 'Student ID, year level, and section are required for student sign up.' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -106,9 +86,6 @@ exports.register = async (req, res) => {
   }
 };
 
-
-
-
 exports.login = async (req, res) => {
   const { username, password, role } = req.body;
 
@@ -118,7 +95,6 @@ exports.login = async (req, res) => {
 
   try {
     const query = 'SELECT * FROM users WHERE username = ?';
-
     const [results] = await db.promise().query(query, [username]);
 
     if (results.length === 0) {
@@ -157,7 +133,9 @@ exports.login = async (req, res) => {
     console.error('login error:', error);
     res.status(500).json({ message: 'Database error. Please try again.' });
   }
- exports.updateAdminProfile = async (req, res) => {
+};
+
+exports.updateAdminProfile = async (req, res) => {
   const userId = req.user.id;
   const { newUsername, newPassword } = req.body;
 
@@ -199,6 +177,4 @@ exports.login = async (req, res) => {
     console.error('updateAdminProfile error:', error);
     res.status(500).json({ message: 'Database error.' });
   }
-}; 
-
 };
