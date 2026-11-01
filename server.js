@@ -20,7 +20,7 @@ const app = express();
 app.set('trust proxy', 1);
 
 const authRoutes = require('./routes/authRoutes');
-const studentRoutes = require('./routes/studentRoutes.js');
+const studentRoutes = require('./routes/studentRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const classRoutes = require('./routes/classRoutes');
 const adminRoutes = require('./routes/adminRoutes');
