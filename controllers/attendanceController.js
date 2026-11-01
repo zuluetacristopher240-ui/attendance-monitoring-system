@@ -1,8 +1,4 @@
-const db = require('../config/db');
-
-// ============================================
-// HELPER: Today's date in Manila timezone
-// ============================================
+const db = require('../config/db');
 function getTodayInManila() {
   const now = new Date();
   const manilaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
@@ -10,11 +6,7 @@ function getTodayInManila() {
   const mm = String(manilaTime.getMonth() + 1).padStart(2, '0');
   const dd = String(manilaTime.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
-}
-
-// ============================================
-// HELPER: Current time in Manila (HH:MM:SS)
-// ============================================
+}
 function getNowTimeInManila() {
   const now = new Date();
   const manilaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
@@ -22,11 +14,7 @@ function getNowTimeInManila() {
   const mm = String(manilaTime.getMinutes()).padStart(2, '0');
   const ss = String(manilaTime.getSeconds()).padStart(2, '0');
   return `${hh}:${mm}:${ss}`;
-}
-
-// ============================================
-// GET ATTENDANCE FOR A SPECIFIC DATE
-// ============================================
+}
 exports.getAttendanceByDate = (req, res) => {
   const { date } = req.params;
 
@@ -53,11 +41,7 @@ exports.getAttendanceByDate = (req, res) => {
     }
     res.status(200).json(results);
   });
-};
-
-// ============================================
-// ✅ BAGO: GET STUDENTS FOR A CLASS+SUBJECT
-// ============================================
+};
 exports.getSessionStudents = (req, res) => {
   const { classId, subjectId } = req.params;
   const teacherId = req.user.id;
@@ -110,11 +94,7 @@ exports.getSessionStudents = (req, res) => {
       res.status(200).json(results);
     });
   });
-};
-
-// ============================================
-// MARK ATTENDANCE
-// ============================================
+};
 exports.markAttendance = (req, res) => {
   const { student_id, date, status, time_in, remarks, subject_id, session_id } = req.body;
 
@@ -159,11 +139,7 @@ exports.markAttendance = (req, res) => {
       res.status(200).json({ message: 'Attendance marked successfully!' });
     }
   );
-};
-
-// ============================================
-// GET TODAY'S STATS
-// ============================================
+};
 exports.getTodayStats = (req, res) => {
   const today = getTodayInManila();
 
@@ -194,11 +170,7 @@ exports.getTodayStats = (req, res) => {
       res.status(200).json(stats);
     });
   });
-};
-
-// ============================================
-// ✅ BAGO: GET HEATMAP DATA
-// ============================================
+};
 exports.getHeatmapData = (req, res) => {
   const now = new Date();
   const manilaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
@@ -285,11 +257,7 @@ exports.getHeatmapData = (req, res) => {
       });
     });
   });
-};
-
-// ============================================
-// GET ATTENDANCE SUMMARY PER STUDENT
-// ============================================
+};
 exports.getAttendanceSummary = (req, res) => {
   const { startDate, endDate } = req.query;
 
@@ -323,11 +291,7 @@ exports.getAttendanceSummary = (req, res) => {
     }
     res.status(200).json(results);
   });
-};
-
-// ============================================
-// GET MY ATTENDANCE — with subject info
-// ============================================
+};
 exports.getMyAttendance = (req, res) => {
   const userId = req.user.id;
 
@@ -353,11 +317,7 @@ exports.getMyAttendance = (req, res) => {
     }
     res.status(200).json(results);
   });
-};
-
-// ============================================
-// DELETE ATTENDANCE RECORD
-// ============================================
+};
 exports.deleteAttendance = (req, res) => {
   const { id } = req.params;
   const query = 'DELETE FROM attendance WHERE id = ?';
@@ -371,11 +331,7 @@ exports.deleteAttendance = (req, res) => {
     }
     res.status(200).json({ message: 'Attendance record cleared.' });
   });
-};
-
-// ============================================
-// GENERATE CHECK-IN CODE
-// ============================================
+};
 exports.generateCode = (req, res) => {
   const teacher_id = req.user.id;
   const { class_id, subject_id, start_time, end_time } = req.body;
@@ -444,11 +400,7 @@ exports.generateCode = (req, res) => {
       );
     });
   });
-};
-
-// ============================================
-// STUDENT CHECK-IN
-// ============================================
+};
 exports.checkIn = (req, res) => {
   const { code } = req.body;
   const user_id = req.user.id;

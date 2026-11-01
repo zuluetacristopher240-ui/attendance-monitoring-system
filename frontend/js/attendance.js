@@ -1,20 +1,11 @@
-/**
- * attendance.js
- * Admin/Teacher attendance monitoring logic.
- */
 
-// ✅ Auth check — admin o teacher
 const user = requireAuth(['admin', 'teacher']);
-if (!user) throw new Error('Not authenticated');
-
-// ✅ Setup logout
+if (!user) throw new Error('Not authenticated');
 setupLogout();
 
 const dateInput = document.getElementById('attendanceDate');
 const tableBody = document.getElementById('attendanceTableBody');
-const summaryText = document.getElementById('summaryText');
-
-// ✅ Helper: today's date
+const summaryText = document.getElementById('summaryText');
 function getTodayDate() {
   const today = new Date();
   const yyyy = today.getFullYear();
@@ -23,9 +14,7 @@ function getTodayDate() {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-dateInput.value = getTodayDate();
-
-// ✅ Load attendance for selected date
+dateInput.value = getTodayDate();
 async function loadAttendance() {
   const selectedDate = dateInput.value;
 
@@ -94,9 +83,7 @@ async function loadAttendance() {
       </tr>
     `;
   }
-}
-
-// ✅ Mark student — gamit ang API helper
+}
 async function markStudent(studentId, status) {
   const selectedDate = dateInput.value;
 
@@ -120,9 +107,7 @@ async function markStudent(studentId, status) {
     console.error('Error marking attendance:', error);
     showToast(error.message, 'absent');
   }
-}
-
-// ✅ Event delegation para sa mark buttons
+}
 tableBody.addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-status]');
   if (!btn) return;
@@ -131,10 +116,6 @@ tableBody.addEventListener('click', (e) => {
   const status = btn.dataset.status;
 
   markStudent(studentId, status);
-});
-
-// ✅ Reload sa date change
-dateInput.addEventListener('change', loadAttendance);
-
-// ✅ Initial load
+});
+dateInput.addEventListener('change', loadAttendance);
 loadAttendance();

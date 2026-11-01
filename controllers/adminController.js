@@ -1,13 +1,6 @@
-/**
- * adminController.js
- * Admin CRUD for classes at subjects.
- */
 
-const db = require('../config/db');
 
-// ============================================
-// ✅ GET ALL CLASSES (with teacher info)
-// ============================================
+const db = require('../config/db');
 exports.getAllClasses = (req, res) => {
   const query = `
     SELECT 
@@ -33,11 +26,7 @@ exports.getAllClasses = (req, res) => {
     }
     res.status(200).json(results);
   });
-};
-
-// ============================================
-// ✅ GET ALL TEACHERS (for dropdown)
-// ============================================
+};
 exports.getAllTeachers = (req, res) => {
   const query = `
     SELECT id, username, full_name
@@ -53,11 +42,7 @@ exports.getAllTeachers = (req, res) => {
     }
     res.status(200).json(results);
   });
-};
-
-// ============================================
-// ✅ CREATE CLASS
-// ============================================
+};
 exports.createClass = (req, res) => {
   const { teacher_id, class_code, class_name, year_level, section } = req.body;
 
@@ -80,11 +65,7 @@ exports.createClass = (req, res) => {
     }
     res.status(201).json({ message: 'Class created!', id: result.insertId });
   });
-};
-
-// ============================================
-// ✅ UPDATE CLASS
-// ============================================
+};
 exports.updateClass = (req, res) => {
   const { id } = req.params;
   const { teacher_id, class_code, class_name, year_level, section } = req.body;
@@ -112,24 +93,16 @@ exports.updateClass = (req, res) => {
     }
     res.status(200).json({ message: 'Class updated!' });
   });
-};
-
-// ============================================
-// ✅ DELETE CLASS (CASCADE — auto-delete subjects)
-// ============================================
+};
 exports.deleteClass = (req, res) => {
-  const { id } = req.params;
-
-  // ✅ Step 1: Delete subjects first (cascade)
+  const { id } = req.params;
   const deleteSubjectsQuery = 'DELETE FROM subjects WHERE class_id = ?';
 
   db.query(deleteSubjectsQuery, [id], (err) => {
     if (err) {
       console.error('deleteClass subjects error:', err);
       return res.status(500).json({ message: 'Database error.' });
-    }
-
-    // ✅ Step 2: Delete yung class
+    }
     const deleteQuery = 'DELETE FROM classes WHERE id = ?';
     db.query(deleteQuery, [id], (err2, deleteResult) => {
       if (err2) {
@@ -142,11 +115,7 @@ exports.deleteClass = (req, res) => {
       res.status(200).json({ message: 'Class at subjects deleted!' });
     });
   });
-};
-
-// ============================================
-// ✅ GET ALL SUBJECTS (with class info)
-// ============================================
+};
 exports.getAllSubjects = (req, res) => {
   const { classId } = req.query;
 
@@ -184,11 +153,7 @@ exports.getAllSubjects = (req, res) => {
     }
     res.status(200).json(results);
   });
-};
-
-// ============================================
-// ✅ CREATE SUBJECT
-// ============================================
+};
 exports.createSubject = (req, res) => {
   const { class_id, subject_code, subject_name, enrollment_code } = req.body;
 
@@ -238,11 +203,7 @@ exports.createSubject = (req, res) => {
       }
     );
   });
-};
-
-// ============================================
-// ✅ UPDATE SUBJECT
-// ============================================
+};
 exports.updateSubject = (req, res) => {
   const { id } = req.params;
   const { subject_code, subject_name, enrollment_code } = req.body;
@@ -267,11 +228,7 @@ exports.updateSubject = (req, res) => {
     }
     res.status(200).json({ message: 'Subject updated!' });
   });
-};
-
-// ============================================
-// ✅ DELETE SUBJECT
-// ============================================
+};
 exports.deleteSubject = (req, res) => {
   const { id } = req.params;
 

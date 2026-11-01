@@ -17,7 +17,7 @@ const pool = mysql.createPool({
   }
 });
 
-// ✅ Auto-reconnect: Kunin natin yung connection sa pool
+
 pool.getConnection((err, connection) => {
   if (err) {
     console.error('Database connection failed:', err.message);

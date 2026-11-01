@@ -1,9 +1,4 @@
-/**
- * students.js
- * Manage Students — safe event delegation.
- */
 
-// ✅ Auth check — admin lang (o teacher kung gusto mo)
 const user = requireAuth(['admin']);
 if (!user) throw new Error('Not authenticated');
 
@@ -12,9 +7,7 @@ setupLogout();
 const modal = document.getElementById('studentModal');
 const modalTitle = document.getElementById('modalTitle');
 const studentForm = document.getElementById('studentForm');
-const tableBody = document.getElementById('studentsTableBody');
-
-// ✅ Load all students
+const tableBody = document.getElementById('studentsTableBody');
 async function loadStudents() {
   try {
     const students = await API.get('/api/students');
@@ -37,9 +30,7 @@ async function loadStudents() {
     }
 
     students.forEach(student => {
-      const row = document.createElement('tr');
-
-      // Safe textContent approach
+      const row = document.createElement('tr');
       const cells = [
         student.student_id,
         student.full_name,
@@ -52,9 +43,7 @@ async function loadStudents() {
         const td = document.createElement('td');
         td.textContent = text;
         row.appendChild(td);
-      });
-
-      // Actions column with event delegation
+      });
       const actionTd = document.createElement('td');
 
       const editBtn = document.createElement('button');
@@ -71,9 +60,7 @@ async function loadStudents() {
 
       actionTd.appendChild(editBtn);
       actionTd.appendChild(deleteBtn);
-      row.appendChild(actionTd);
-
-      // Store full student data sa dataset
+      row.appendChild(actionTd);
       row.dataset.student = JSON.stringify(student);
 
       tableBody.appendChild(row);
@@ -89,9 +76,7 @@ async function loadStudents() {
       </tr>
     `;
   }
-}
-
-// ✅ Event delegation para sa edit/delete buttons
+}
 tableBody.addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-action]');
   if (!btn) return;
@@ -106,17 +91,13 @@ tableBody.addEventListener('click', (e) => {
   } else if (action === 'delete') {
     deleteStudent(id);
   }
-});
-
-// ✅ Open modal para mag-add
+});
 document.getElementById('addStudentBtn').addEventListener('click', function() {
   modalTitle.textContent = 'Add Student';
   studentForm.reset();
   document.getElementById('studentDbId').value = '';
   modal.classList.remove('hidden');
-});
-
-// ✅ Open modal para mag-edit
+});
 function openEditModal(student) {
   modalTitle.textContent = 'Edit Student';
   document.getElementById('studentDbId').value = student.id;
@@ -126,14 +107,10 @@ function openEditModal(student) {
   document.getElementById('section').value = student.section;
   document.getElementById('email').value = student.email || '';
   modal.classList.remove('hidden');
-}
-
-// ✅ Cancel modal
+}
 document.getElementById('cancelBtn').addEventListener('click', function() {
   modal.classList.add('hidden');
-});
-
-// ✅ Submit form (Add o Edit)
+});
 studentForm.addEventListener('submit', async function(e) {
   e.preventDefault();
 
@@ -164,9 +141,7 @@ studentForm.addEventListener('submit', async function(e) {
     console.error('Error saving student:', error);
     showToast(error.message, 'absent');
   }
-});
-
-// ✅ Delete student
+});
 async function deleteStudent(id) {
   if (!confirm('Are you sure you want to delete this student?')) return;
 
@@ -179,7 +154,5 @@ async function deleteStudent(id) {
     console.error('Error deleting student:', error);
     showToast(error.message, 'absent');
   }
-}
-
-// ✅ Initial load
+}
 loadStudents();

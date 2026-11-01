@@ -1,19 +1,10 @@
-/**
- * student-subjects.js
- * Student — My Subjects + Join Class.
- */
 
-// ✅ Auth check — student only
 const user = requireAuth(['student']);
 if (!user) throw new Error('Not authenticated');
 
 setupLogout();
 
-let currentJoinSubjectId = null;
-
-// ============================================
-// ✅ LOAD MY SUBJECTS
-// ============================================
+let currentJoinSubjectId = null;
 async function loadMySubjects() {
   const list = document.getElementById('subjectsList');
 
@@ -63,9 +54,7 @@ async function loadMySubjects() {
         </button>
       `;
       list.appendChild(card);
-    });
-
-    // ✅ Attach click handlers
+    });
     list.querySelectorAll('.join-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         openJoinModal(
@@ -83,11 +72,7 @@ async function loadMySubjects() {
       </p>
     `;
   }
-}
-
-// ============================================
-// ✅ JOIN MODAL
-// ============================================
+}
 function openJoinModal(subjectId, subjectName) {
   currentJoinSubjectId = subjectId;
   document.getElementById('joinModalTitle').textContent = `Join: ${subjectName}`;
@@ -99,11 +84,7 @@ function openJoinModal(subjectId, subjectName) {
 document.getElementById('cancelJoinBtn').addEventListener('click', () => {
   document.getElementById('joinModal').classList.add('hidden');
   currentJoinSubjectId = null;
-});
-
-// ============================================
-// ✅ JOIN FORM SUBMIT (specific subject)
-// ============================================
+});
 document.getElementById('joinForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const code = document.getElementById('joinModalCode').value.trim();
@@ -116,11 +97,7 @@ document.getElementById('joinForm').addEventListener('submit', async (e) => {
   await performCheckIn(code);
   document.getElementById('joinModal').classList.add('hidden');
   currentJoinSubjectId = null;
-});
-
-// ============================================
-// ✅ JOIN NEW SUBJECT (general)
-// ============================================
+});
 document.getElementById('joinNewBtn').addEventListener('click', async function() {
   const btn = this;
   const code = document.getElementById('joinNewCode').value.trim();
@@ -157,11 +134,7 @@ document.getElementById('joinNewBtn').addEventListener('click', async function()
     btn.disabled = false;
     btn.textContent = 'Join';
   }
-});
-
-// ============================================
-// ✅ PERFORM CHECK-IN
-// ============================================
+});
 async function performCheckIn(code) {
   try {
     const data = await API.post('/api/attendance/check-in', { code });
@@ -171,9 +144,5 @@ async function performCheckIn(code) {
     console.error('Error checking in:', error);
     showToast(error.message, 'absent');
   }
-}
-
-// ============================================
-// ✅ INITIAL LOAD
-// ============================================
+}
 loadMySubjects();

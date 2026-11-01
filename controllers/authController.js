@@ -2,9 +2,9 @@ const db = require('../config/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-// ============================================
-// VALIDATION HELPERS
-// ============================================
+
+
+
 function validatePassword(password) {
   if (password.length < 8) {
     return 'Password must be at least 8 characters.';
@@ -31,9 +31,9 @@ function validateUsername(username) {
   return null;
 }
 
-// ============================================
-// REGISTER — gumagawa ng bagong account
-// ============================================
+
+
+
 exports.register = async (req, res) => {
   let connection;
   try {
@@ -106,9 +106,9 @@ exports.register = async (req, res) => {
   }
 };
 
-// ============================================
-// LOGIN — nagve-verify ng account
-// ============================================
+
+
+
 exports.login = async (req, res) => {
   const { username, password, role } = req.body;
 
@@ -118,7 +118,7 @@ exports.login = async (req, res) => {
 
   try {
     const query = 'SELECT * FROM users WHERE username = ?';
-    // ✅ Gumamit ng promise-based query para sa stable connection
+
     const [results] = await db.promise().query(query, [username]);
 
     if (results.length === 0) {

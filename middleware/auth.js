@@ -1,28 +1,14 @@
-/**
- * middleware/auth.js
- * 
- * Centralized authentication at authorization middleware.
- * 
- * Usage sa routes:
- *   const { verifyToken, requireRole } = require('../middleware/auth');
- *   router.get('/protected', verifyToken, handler);
- *   router.post('/admin-only', verifyToken, requireRole('admin'), handler);
- */
+
 
 const jwt = require('jsonwebtoken');
 
-/**
- * Verify JWT token. Kung valid, i-attach ang decoded user sa req.user.
- * req.user = { id, username, role }
- */
+
 function verifyToken(req, res, next) {
   const authHeader = req.headers['authorization'];
 
   if (!authHeader) {
     return res.status(401).json({ message: 'Authentication required.' });
-  }
-
-  // Expected format: "Bearer <token>"
+  }
   const parts = authHeader.split(' ');
   if (parts.length !== 2 || parts[0] !== 'Bearer') {
     return res.status(401).json({ message: 'Invalid authorization header format.' });
@@ -45,13 +31,7 @@ function verifyToken(req, res, next) {
   }
 }
 
-/**
- * Role-based access control.
- * 
- * Usage:
- *   router.delete('/:id', verifyToken, requireRole('admin'), handler);
- *   router.get('/', verifyToken, requireRole('admin', 'teacher'), handler);
- */
+
 function requireRole(...allowedRoles) {
   return (req, res, next) => {
     if (!req.user) {

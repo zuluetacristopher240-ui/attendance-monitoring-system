@@ -1,17 +1,8 @@
-/**
- * teacher-dashboard.js
- * Teacher Dashboard — stats + heatmap.
- */
 
-// ✅ Auth check — teacher only
 const user = requireAuth(['teacher']);
 if (!user) throw new Error('Not authenticated');
 
-setupLogout();
-
-// ============================================
-// ✅ LOAD STATS (today)
-// ============================================
+setupLogout();
 async function loadDashboardStats() {
   try {
     const stats = await API.get('/api/attendance/stats/today');
@@ -25,11 +16,7 @@ async function loadDashboardStats() {
     console.error('Error loading stats:', error);
     showToast(error.message, 'absent');
   }
-}
-
-// ============================================
-// ✅ LOAD HEATMAP
-// ============================================
+}
 async function loadHeatmap() {
   const grid = document.getElementById('heatmapGrid');
   const monthLabel = document.getElementById('heatmapMonth');
@@ -96,10 +83,6 @@ async function loadHeatmap() {
     console.error('Error loading heatmap:', error);
     grid.innerHTML = `<p style="color: #D64550; font-size: 13px;">${escapeHtml(error.message)}</p>`;
   }
-}
-
-// ============================================
-// ✅ INITIAL LOAD
-// ============================================
+}
 loadDashboardStats();
 loadHeatmap();

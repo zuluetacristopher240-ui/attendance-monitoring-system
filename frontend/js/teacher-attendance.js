@@ -1,9 +1,4 @@
-/**
- * teacher-attendance.js
- * Teacher "Take Attendance" logic — filtered by class+subject.
- */
 
-// ✅ Auth check — teacher lang
 const user = requireAuth(['teacher']);
 if (!user) throw new Error('Not authenticated');
 
@@ -32,11 +27,7 @@ function getTodayDate() {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-dateInput.value = getTodayDate();
-
-// ============================================
-// ✅ LOAD CLASSES
-// ============================================
+dateInput.value = getTodayDate();
 async function loadClasses() {
   try {
     const classes = await API.get('/api/classes/my');
@@ -59,11 +50,7 @@ async function loadClasses() {
     console.error('Error loading classes:', error);
     showToast(error.message, 'absent');
   }
-}
-
-// ============================================
-// ✅ LOAD SUBJECTS (per class)
-// ============================================
+}
 async function loadSubjects(classId) {
   subjectSelect.innerHTML = '<option value="">Loading...</option>';
   subjectSelect.disabled = true;
@@ -92,9 +79,7 @@ async function loadSubjects(classId) {
     subjectSelect.innerHTML = '<option value="">Error loading subjects</option>';
     showToast(error.message, 'absent');
   }
-}
-
-// ✅ Pag-pili ng class → load subjects
+}
 classSelect.addEventListener('change', function() {
   const classId = this.value;
   currentClassId = classId;
@@ -108,9 +93,7 @@ classSelect.addEventListener('change', function() {
   }
   loadSubjects(classId);
   renderEmptyState('Please select a subject to view students.');
-});
-
-// ✅ Pag-pili ng subject → load students
+});
 subjectSelect.addEventListener('change', function() {
   const subjectId = this.value;
   currentSubjectId = subjectId;
@@ -120,11 +103,7 @@ subjectSelect.addEventListener('change', function() {
     return;
   }
   loadAttendance(false);
-});
-
-// ============================================
-// ✅ EMPTY STATE
-// ============================================
+});
 function renderEmptyState(message) {
   tableBody.innerHTML = `
     <tr>
@@ -135,11 +114,7 @@ function renderEmptyState(message) {
     </tr>
   `;
   summaryText.textContent = '';
-}
-
-// ============================================
-// ✅ LOAD ATTENDANCE (filtered by class+subject)
-// ============================================
+}
 async function loadAttendance(notify = false) {
   if (!currentClassId || !currentSubjectId) {
     renderEmptyState('Please select a class and subject above to view students.');
@@ -219,11 +194,7 @@ async function loadAttendance(notify = false) {
       </tr>
     `;
   }
-}
-
-// ============================================
-// ✅ MARK STUDENT
-// ============================================
+}
 async function markStudent(studentId, status) {
   if (!currentSubjectId) {
     showToast('Please select a subject first.', 'late');
@@ -253,9 +224,7 @@ async function markStudent(studentId, status) {
     console.error('Error marking attendance:', error);
     showToast(error.message, 'absent');
   }
-}
-
-// ✅ Event delegation
+}
 tableBody.addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-status]');
   if (!btn) return;
@@ -266,12 +235,8 @@ tableBody.addEventListener('click', (e) => {
   markStudent(studentId, status);
 });
 
-dateInput.addEventListener('change', () => loadAttendance(false));
-
-// ✅ Initial load
-renderEmptyState('Please select a class and subject above to view students.');
-
-// ✅ Auto-refresh every 5 seconds
+dateInput.addEventListener('change', () => loadAttendance(false));
+renderEmptyState('Please select a class and subject above to view students.');
 pollInterval = setInterval(() => {
   if (document.hidden) return;
   if (dateInput.value === getTodayDate() && currentClassId && currentSubjectId) {
@@ -282,11 +247,7 @@ pollInterval = setInterval(() => {
 window.addEventListener('beforeunload', () => {
   if (pollInterval) clearInterval(pollInterval);
   if (codeCountdownInterval) clearInterval(codeCountdownInterval);
-});
-
-// ============================================
-// ✅ GENERATE CHECK-IN CODE
-// ============================================
+});
 document.getElementById('generateCodeBtn').addEventListener('click', async function() {
   const btn = this;
 
@@ -356,7 +317,5 @@ document.getElementById('generateCodeBtn').addEventListener('click', async funct
     btn.disabled = false;
     btn.textContent = 'Generate Check-In Code';
   }
-});
-
-// ✅ Initial load ng classes
+});
 loadClasses();

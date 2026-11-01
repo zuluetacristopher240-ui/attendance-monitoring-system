@@ -1,18 +1,11 @@
-/**
- * login.js
- * Login page — role selector + form submission.
- */
+
 
 const roleSelector = document.getElementById('roleSelector');
 const loginFormContainer = document.getElementById('loginFormContainer');
 const loginTitle = document.getElementById('loginTitle');
 const loginSubtitle = document.getElementById('loginSubtitle');
 
-let selectedRole = null;
-
-// ============================================
-// ✅ ROLE BUTTONS
-// ============================================
+let selectedRole = null;
 document.getElementById('teacherRoleBtn').addEventListener('click', function() {
   selectedRole = 'teacher';
   loginTitle.textContent = 'Teacher Login';
@@ -36,11 +29,7 @@ document.getElementById('adminRoleLink').addEventListener('click', function(e) {
   loginSubtitle.textContent = 'Administrator access';
   roleSelector.classList.add('hidden');
   loginFormContainer.classList.remove('hidden');
-});
-
-// ============================================
-// ✅ BACK BUTTON
-// ============================================
+});
 document.getElementById('backBtn').addEventListener('click', function(e) {
   e.preventDefault();
   loginFormContainer.classList.add('hidden');
@@ -48,11 +37,7 @@ document.getElementById('backBtn').addEventListener('click', function(e) {
   document.getElementById('loginForm').reset();
   document.getElementById('errorMessage').textContent = '';
   selectedRole = null;
-});
-
-// ============================================
-// ✅ SHOW/HIDE PASSWORD
-// ============================================
+});
 const togglePasswordBtn = document.getElementById('togglePassword');
 const passwordInput = document.getElementById('password');
 
@@ -61,19 +46,11 @@ togglePasswordBtn.addEventListener('click', function() {
   passwordInput.type = isPassword ? 'text' : 'password';
   this.querySelector('.eye-icon').textContent = isPassword ? '🙈' : '👁';
   this.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
-});
-
-// ============================================
-// ✅ FORGOT PASSWORD (placeholder)
-// ============================================
+});
 document.getElementById('forgotPasswordLink').addEventListener('click', function(e) {
   e.preventDefault();
   alert('Please contact the administrator to reset your password.');
-});
-
-// ============================================
-// ✅ LOGIN FORM SUBMIT
-// ============================================
+});
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
@@ -83,12 +60,8 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   const errorMessage = document.getElementById('errorMessage');
   const submitBtn = document.getElementById('loginSubmitBtn');
   const btnText = submitBtn.querySelector('.btn-text');
-  const btnSpinner = submitBtn.querySelector('.btn-spinner');
-
-  // ✅ Reset error
-  errorMessage.textContent = '';
-
-  // ✅ Validation
+  const btnSpinner = submitBtn.querySelector('.btn-spinner');
+  errorMessage.textContent = '';
   if (!username || !password) {
     errorMessage.textContent = 'Please fill in all fields.';
     errorMessage.style.color = '#D64550';
@@ -99,9 +72,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     errorMessage.textContent = 'Please select a role first.';
     errorMessage.style.color = '#D64550';
     return;
-  }
-
-  // ✅ Loading state
+  }
   submitBtn.disabled = true;
   btnText.textContent = 'Logging in...';
   btnSpinner.classList.remove('hidden');
@@ -111,9 +82,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
       username,
       password,
       role: selectedRole
-    });
-
-    // ✅ Save auth — 8 hours o 30 days kung "Remember me"
+    });
     const expiry = rememberMe ? 30 * 24 * 60 * 60 : 8 * 60 * 60;
     saveAuth(data.token, data.user, expiry);
 

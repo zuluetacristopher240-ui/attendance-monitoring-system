@@ -1,10 +1,7 @@
-/**
- * api.js
- * API helper — may timeout, network error handling, at 401 redirect.
- */
+
 
 const API = {
-  // ✅ Timeout sa milliseconds (15 seconds)
+
   TIMEOUT: 15000,
 
   async request(url, options) {
@@ -19,26 +16,22 @@ const API = {
       }
     };
 
-    // ✅ Auth header
     if (token) {
       config.headers["Authorization"] = "Bearer " + token;
     }
 
-    // ✅ Custom headers
     if (options.headers) {
       for (const key in options.headers) {
         config.headers[key] = options.headers[key];
       }
     }
 
-    // ✅ Body
     if (options.body) {
       config.body = typeof options.body === "string"
         ? options.body
         : JSON.stringify(options.body);
     }
 
-    // ✅ Timeout gamit AbortController
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT);
     config.signal = controller.signal;
@@ -56,7 +49,6 @@ const API = {
     }
     clearTimeout(timeoutId);
 
-    // ✅ 401 — session expired
     if (response.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -68,7 +60,6 @@ const API = {
       throw new Error("Session expired. Please log in again.");
     }
 
-    // ✅ Parse response body
     const text = await response.text();
     let data = null;
     if (text) {
@@ -79,7 +70,6 @@ const API = {
       }
     }
 
-    // ✅ Error handling
     if (!response.ok) {
       throw new Error((data && data.message) || "Request failed (HTTP " + response.status + ")");
     }

@@ -1,9 +1,4 @@
-/**
- * student-dashboard.js
- * Student Dashboard — My Attendance History only.
- */
 
-// ✅ Auth check — student only
 const user = requireAuth(['student']);
 if (!user) throw new Error('Not authenticated');
 
@@ -19,11 +14,7 @@ function getTodayDate() {
   const mm = String(today.getMonth() + 1).padStart(2, '0');
   const dd = String(today.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
-}
-
-// ============================================
-// ✅ LOAD MY ATTENDANCE
-// ============================================
+}
 async function loadMyAttendance(notify = false) {
   const tableBody = document.getElementById('myAttendanceTableBody');
 
@@ -102,14 +93,8 @@ async function loadMyAttendance(notify = false) {
       </tr>
     `;
   }
-}
-
-// ============================================
-// ✅ INITIAL LOAD
-// ============================================
-loadMyAttendance(false);
-
-// ✅ Auto-refresh every 5 seconds
+}
+loadMyAttendance(false);
 pollInterval = setInterval(() => {
   if (document.hidden) return;
   loadMyAttendance(true);

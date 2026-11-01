@@ -1,13 +1,6 @@
-/**
- * teacherController.js
- * Teacher — manage own subjects.
- */
 
-const db = require('../config/db');
 
-// ============================================
-// ✅ GET ALL SUBJECTS (teacher's own)
-// ============================================
+const db = require('../config/db');
 exports.getMySubjects = (req, res) => {
   const teacherId = req.user.id;
 
@@ -35,11 +28,7 @@ exports.getMySubjects = (req, res) => {
     }
     res.status(200).json(results);
   });
-};
-
-// ============================================
-// ✅ GET ALL CLASSES (for dropdown — all classes)
-// ============================================
+};
 exports.getAllClassesForTeacher = (req, res) => {
   const query = `
     SELECT 
@@ -61,20 +50,14 @@ exports.getAllClassesForTeacher = (req, res) => {
     }
     res.status(200).json(results);
   });
-};
-
-// ============================================
-// ✅ CREATE SUBJECT (teacher)
-// ============================================
+};
 exports.createSubject = (req, res) => {
   const teacherId = req.user.id;
   const { class_id, subject_code, subject_name, enrollment_code } = req.body;
 
   if (!class_id || !subject_code || !subject_name) {
     return res.status(400).json({ message: 'Class, subject code, at subject name ay required.' });
-  }
-
-  // ✅ Verify class exists
+  }
   const classQuery = 'SELECT id FROM classes WHERE id = ?';
   db.query(classQuery, [class_id], (err, classResult) => {
     if (err) {
@@ -84,9 +67,7 @@ exports.createSubject = (req, res) => {
 
     if (classResult.length === 0) {
       return res.status(404).json({ message: 'Class not found.' });
-    }
-
-    // ✅ Auto-generate enrollment code kung wala
+    }
     let finalEnrollmentCode = enrollment_code;
     if (!finalEnrollmentCode) {
       finalEnrollmentCode = 'ENR-' + subject_code.toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -116,11 +97,7 @@ exports.createSubject = (req, res) => {
       }
     );
   });
-};
-
-// ============================================
-// ✅ UPDATE SUBJECT (teacher — sarili lang)
-// ============================================
+};
 exports.updateSubject = (req, res) => {
   const teacherId = req.user.id;
   const { id } = req.params;
@@ -128,9 +105,7 @@ exports.updateSubject = (req, res) => {
 
   if (!subject_code || !subject_name) {
     return res.status(400).json({ message: 'Subject code at subject name ay required.' });
-  }
-
-  // ✅ Verify ownership
+  }
   const ownerCheck = 'SELECT id FROM subjects WHERE id = ? AND teacher_id = ?';
   db.query(ownerCheck, [id, teacherId], (err, ownerResult) => {
     if (err) {
@@ -159,16 +134,10 @@ exports.updateSubject = (req, res) => {
       res.status(200).json({ message: 'Subject updated!' });
     });
   });
-};
-
-// ============================================
-// ✅ DELETE SUBJECT (teacher — sarili lang)
-// ============================================
+};
 exports.deleteSubject = (req, res) => {
   const teacherId = req.user.id;
-  const { id } = req.params;
-
-  // ✅ Verify ownership
+  const { id } = req.params;
   const ownerCheck = 'SELECT id FROM subjects WHERE id = ? AND teacher_id = ?';
   db.query(ownerCheck, [id, teacherId], (err, ownerResult) => {
     if (err) {
@@ -178,9 +147,7 @@ exports.deleteSubject = (req, res) => {
 
     if (ownerResult.length === 0) {
       return res.status(404).json({ message: 'Subject not found or not yours.' });
-    }
-
-    // ✅ Check enrolled students
+    }
     const checkQuery = 'SELECT COUNT(*) AS count FROM student_subjects WHERE subject_id = ?';
     db.query(checkQuery, [id], (err2, result) => {
       if (err2) {

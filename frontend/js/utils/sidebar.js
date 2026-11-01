@@ -1,7 +1,4 @@
-/**
- * sidebar.js
- * Sidebar toggle — collapsible sidebar, HIDDEN by default.
- */
+
 
 (function() {
   const SIDEBAR_KEY = 'sidebarHidden';
@@ -68,13 +65,9 @@
     if (!sidebar) {
       console.warn('❌ Sidebar not found');
       return;
-    }
-
-    // ✅ DEFAULT: NAKA-HIDDEN lagi pag-load
+    }
     sidebar.classList.add('hidden');
-    document.body.classList.add('sidebar-hidden');
-
-    // ✅ Event delegation sa click
+    document.body.classList.add('sidebar-hidden');
     document.addEventListener('click', function(e) {
       const btn = e.target.closest('.sidebar-toggle');
       if (!btn) return;

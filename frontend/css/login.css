@@ -9,7 +9,7 @@ body {
   background: #800000;
 }
 
-/* ============ FULL-PAGE ANIMATED BACKGROUND ============ */
+
 .page-bg {
   position: relative;
   min-height: 100vh;
@@ -42,7 +42,7 @@ body {
   z-index: 2;
 }
 
-/* Floating checkmark stamps */
+
 .floaters {
   position: absolute;
   inset: 0;
@@ -88,7 +88,7 @@ body {
   .floater, .hero-glow { animation: none; opacity: 0.6; }
 }
 
-/* ============ GLASSMORPHISM CARD ============ */
+
 .login-container {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
@@ -107,7 +107,7 @@ body {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* ============ BRANDING ============ */
+
 .brand {
   text-align: center;
   margin-bottom: 24px;
@@ -155,7 +155,7 @@ body {
   letter-spacing: 3px;
 }
 
-/* ============ HEADINGS ============ */
+
 .login-container h2 {
   text-align: center;
   margin-bottom: 6px;
@@ -172,7 +172,7 @@ body {
   margin-bottom: 24px;
 }
 
-/* ============ FORM ============ */
+
 .form-group {
   margin-bottom: 16px;
 }
@@ -201,7 +201,7 @@ body {
   box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
 }
 
-/* Password wrapper — for show/hide toggle */
+
 .password-wrapper {
   position: relative;
 }
@@ -234,7 +234,7 @@ body {
   font-size: 16px;
 }
 
-/* ============ FORM ROW — remember me + forgot ============ */
+
 .form-row {
   display: flex;
   justify-content: space-between;
@@ -272,7 +272,7 @@ body {
   text-decoration: underline;
 }
 
-/* ============ SUBMIT BUTTON ============ */
+
 button[type="submit"],
 #loginSubmitBtn {
   width: 100%;
@@ -321,7 +321,7 @@ button[type="submit"]:disabled,
   to { transform: rotate(360deg); }
 }
 
-/* ============ ERROR MESSAGE ============ */
+
 .error {
   color: #D64550;
   font-size: 13px;
@@ -330,7 +330,7 @@ button[type="submit"]:disabled,
   min-height: 18px;
 }
 
-/* ============ ROLE BUTTONS ============ */
+
 .role-buttons {
   display: flex;
   gap: 12px;
@@ -368,7 +368,7 @@ button[type="submit"]:disabled,
   font-size: 32px;
 }
 
-/* ============ LINKS ============ */
+
 .admin-link {
   text-align: center;
   font-size: 13px;
@@ -406,14 +406,14 @@ button[type="submit"]:disabled,
   display: none !important;
 }
 
-/* ============ RESPONSIVE (TABLET) ============ */
+
 @media (max-width: 768px) {
   .page-bg {
     padding: 20px 16px;
   }
 }
 
-/* ============ RESPONSIVE (MOBILE) ============ */
+
 @media (max-width: 480px) {
   .page-bg {
     padding: 16px;

@@ -1,17 +1,10 @@
-/**
- * reports.js
- * Attendance Reports logic.
- */
 
-// ✅ Auth check — admin o teacher
 const user = requireAuth(['admin', 'teacher']);
 if (!user) throw new Error('Not authenticated');
 
 setupLogout();
 
-const tableBody = document.getElementById('reportsTableBody');
-
-// ✅ Load report (may optional date filter)
+const tableBody = document.getElementById('reportsTableBody');
 async function loadReport(startDate, endDate) {
   try {
     let url = '/api/attendance/summary/report';
@@ -70,9 +63,7 @@ async function loadReport(startDate, endDate) {
       </tr>
     `;
   }
-}
-
-// ✅ Filter button
+}
 document.getElementById('filterBtn').addEventListener('click', function() {
   const startDate = document.getElementById('startDate').value;
   const endDate = document.getElementById('endDate').value;
@@ -88,14 +79,10 @@ document.getElementById('filterBtn').addEventListener('click', function() {
   }
 
   loadReport(startDate, endDate);
-});
-
-// ✅ Clear filter button
+});
 document.getElementById('clearFilterBtn').addEventListener('click', function() {
   document.getElementById('startDate').value = '';
   document.getElementById('endDate').value = '';
   loadReport();
-});
-
-// ✅ Initial load
+});
 loadReport();

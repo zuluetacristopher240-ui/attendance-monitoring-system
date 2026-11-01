@@ -1,12 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const studentController = require('../controllers/studentController');
-const { verifyToken, requireRole } = require('../middleware/auth');
-
-// ✅ LAHAT NG ROUTES AY PROTECTED (kailangan ng token)
-router.use(verifyToken);
-
-// ✅ Admin lang ang pwedeng mag-CRUD ng students
+const { verifyToken, requireRole } = require('../middleware/auth');
+router.use(verifyToken);
 router.get('/', requireRole('admin', 'teacher'), studentController.getAllStudents);
 router.get('/:id', requireRole('admin', 'teacher'), studentController.getStudentById);
 router.post('/', requireRole('admin'), studentController.createStudent);

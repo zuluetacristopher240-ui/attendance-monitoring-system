@@ -1,9 +1,4 @@
-/**
- * teacher-subjects.js
- * Teacher — manage own subjects.
- */
 
-// ✅ Auth check — teacher only
 const user = requireAuth(['teacher']);
 if (!user) throw new Error('Not authenticated');
 
@@ -15,11 +10,7 @@ const subjectModalTitle = document.getElementById('subjectModalTitle');
 const subjectForm = document.getElementById('subjectForm');
 const subjectClassSelect = document.getElementById('subjectClass');
 
-let allClasses = [];
-
-// ============================================
-// ✅ LOAD CLASSES (for dropdown)
-// ============================================
+let allClasses = [];
 async function loadClasses() {
   try {
     allClasses = await API.get('/api/teacher/classes');
@@ -42,11 +33,7 @@ async function loadClasses() {
     console.error('Error loading classes:', error);
     showToast(error.message, 'absent');
   }
-}
-
-// ============================================
-// ✅ LOAD SUBJECTS (teacher's own)
-// ============================================
+}
 async function loadSubjects() {
   try {
     const subjects = await API.get('/api/teacher/subjects');
@@ -95,22 +82,14 @@ async function loadSubjects() {
       </tr>
     `;
   }
-}
-
-// ============================================
-// ✅ OPEN MODAL — Add
-// ============================================
+}
 document.getElementById('addSubjectBtn').addEventListener('click', () => {
   subjectModalTitle.textContent = 'Add Subject';
   subjectForm.reset();
   document.getElementById('subjectDbId').value = '';
   subjectClassSelect.disabled = false;
   subjectModal.classList.remove('hidden');
-});
-
-// ============================================
-// ✅ EVENT DELEGATION — Edit / Delete
-// ============================================
+});
 subjectsTableBody.addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-action]');
   if (!btn) return;
@@ -131,19 +110,11 @@ subjectsTableBody.addEventListener('click', (e) => {
   } else if (action === 'delete-subject') {
     deleteSubject(btn.dataset.id);
   }
-});
-
-// ============================================
-// ✅ CANCEL MODAL
-// ============================================
+});
 document.getElementById('cancelSubjectBtn').addEventListener('click', () => {
   subjectModal.classList.add('hidden');
   subjectClassSelect.disabled = false;
-});
-
-// ============================================
-// ✅ SUBMIT FORM (Add / Edit)
-// ============================================
+});
 subjectForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -175,11 +146,7 @@ subjectForm.addEventListener('submit', async (e) => {
     console.error('Error saving subject:', error);
     showToast('❌ ' + error.message, 'absent');
   }
-});
-
-// ============================================
-// ✅ DELETE SUBJECT
-// ============================================
+});
 async function deleteSubject(id) {
   if (!confirm('Sigurado ka bang gusto mong i-delete ang subject na ito?')) return;
   try {
@@ -190,10 +157,6 @@ async function deleteSubject(id) {
     console.error('Error deleting subject:', error);
     showToast('❌ ' + error.message, 'absent');
   }
-}
-
-// ============================================
-// ✅ INITIAL LOAD
-// ============================================
+}
 loadClasses();
 loadSubjects();

@@ -1,6 +1,4 @@
-/* ============================================
-   SIDEBAR COLLAPSE — Desktop
-   ============================================ */
+
 
 .sidebar {
   transition: margin-left 0.3s ease;
@@ -11,9 +9,7 @@
   margin-left: -230px !important;
 }
 
-/* ============================================
-   TOPBAR LEFT
-   ============================================ */
+
 
 .topbar {
   align-items: center;
@@ -30,9 +26,7 @@
   margin: 0;
 }
 
-/* ============================================
-   HAMBURGER BUTTON
-   ============================================ */
+
 
 .sidebar-toggle {
   display: inline-flex;
@@ -62,12 +56,10 @@
   transform: scale(0.92);
 }
 
-/* ============================================
-   MOBILE — overlay style sidebar + VERTICAL nav
-   ============================================ */
+
 
 @media (max-width: 768px) {
-  /* Sidebar — fixed, 230px wide, hindi sakop ang buong screen */
+  
   .sidebar {
     position: fixed;
     top: 0;
@@ -89,7 +81,7 @@
     transform: translateX(-100%);
   }
 
-  /* ✅ FORCE VERTICAL STACKING — ito yung fix */
+  
   .sidebar nav {
     display: flex !important;
     flex-direction: column !important;
@@ -109,19 +101,19 @@
     text-align: left;
   }
 
-  /* Alisin yung gold accent line sa mobile */
+  
   .sidebar nav a::before {
     display: none !important;
   }
 
-  /* Sidebar header text — mas maliit sa mobile */
+  
   .sidebar h2 {
     font-size: 20px !important;
     margin-bottom: 24px !important;
     letter-spacing: 2px !important;
   }
 
-  /* Dark overlay sa likod ng sidebar */
+  
   .sidebar-overlay {
     position: fixed;
     top: 0;
@@ -144,7 +136,7 @@
   }
 }
 
-/* Desktop: walang overlay */
+
 @media (min-width: 769px) {
   .sidebar-overlay {
     display: none !important;

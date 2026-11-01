@@ -1,11 +1,6 @@
-/**
- * classController.js
- * Handles classes at subjects queries for teachers at students.
- */
 
-const db = require('../config/db');
 
-// Helper: today's date
+const db = require('../config/db');
 function getTodayInManila() {
   const now = new Date();
   const manilaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
@@ -13,11 +8,7 @@ function getTodayInManila() {
   const mm = String(manilaTime.getMonth() + 1).padStart(2, '0');
   const dd = String(manilaTime.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
-}
-
-// ============================================
-// ✅ GET MY CLASSES (teacher)
-// ============================================
+}
 exports.getMyClasses = (req, res) => {
   const teacherId = req.user.id;
 
@@ -41,11 +32,7 @@ exports.getMyClasses = (req, res) => {
     }
     res.status(200).json(results);
   });
-};
-
-// ============================================
-// ✅ GET SUBJECTS BY CLASS (teacher)
-// ============================================
+};
 exports.getSubjectsByClass = (req, res) => {
   const teacherId = req.user.id;
   const { classId } = req.params;
@@ -87,11 +74,7 @@ exports.getSubjectsByClass = (req, res) => {
       res.status(200).json(results);
     });
   });
-};
-
-// ============================================
-// ✅ GET MY SUBJECTS (student) — with active session info
-// ============================================
+};
 exports.getMySubjects = (req, res) => {
   const userId = req.user.id;
   const today = getTodayInManila();
@@ -143,11 +126,7 @@ exports.getMySubjects = (req, res) => {
     }
     res.status(200).json(results);
   });
-};
-
-// ============================================
-// ✅ BAGO: GET ACTIVE SESSION FOR A SUBJECT (student)
-// ============================================
+};
 exports.getActiveSession = (req, res) => {
   const { subjectId } = req.params;
   const today = getTodayInManila();

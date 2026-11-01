@@ -29,7 +29,7 @@
   color: #6B7280;
 }
 
-/* ============ STATUS BADGE ============ */
+
 .status-badge {
   display: inline-block;
   padding: 4px 12px;
@@ -54,7 +54,7 @@
   color: #6B7280;
 }
 
-/* ============ ATTENDANCE ACTIONS ============ */
+
 .attendance-actions button {
   border: none;
   padding: 6px 10px;
@@ -75,7 +75,7 @@
 .attendance-actions button:hover { opacity: 0.88; }
 .attendance-actions button:active { transform: scale(0.93); }
 
-/* ============ CODE GENERATOR ============ */
+
 .code-generator { margin-bottom: 20px; }
 
 .code-display {
@@ -104,7 +104,7 @@
   font-weight: 500;
 }
 
-/* ============ CHECK-IN BOX ============ */
+
 .checkin-box {
   background: white;
   border-radius: 10px;
@@ -142,7 +142,7 @@
   font-weight: 500;
 }
 
-/* ============ SUBJECT CARD ============ */
+
 .subject-card {
   padding: 14px 16px;
   border: 1px solid #E5E5E5;
@@ -191,7 +191,7 @@
   align-self: center;
 }
 
-/* ============ RESPONSIVE (TABLET) ============ */
+
 @media (max-width: 768px) {
   .date-bar {
     flex-wrap: wrap;
@@ -217,7 +217,7 @@
   }
 }
 
-/* ============ RESPONSIVE (MOBILE) ============ */
+
 @media (max-width: 480px) {
   .code-display {
     flex-direction: column;
@@ -252,7 +252,7 @@
   }
 }
 
-/* ============ TOAST NOTIFICATIONS ============ */
+
 .toast-container {
   position: fixed;
   top: 20px;
