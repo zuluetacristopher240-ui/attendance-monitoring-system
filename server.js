@@ -55,6 +55,12 @@ app.use(cors({
 
 app.use(express.json());
 
+// ✅ STATIC FILES DAPAT UNAHIN PARA HINDI MA-INTERCEPT NG ROUTING SA BABA
+app.use('/css', express.static(path.join(__dirname, 'frontend', 'css')));
+app.use('/js', express.static(path.join(__dirname, 'frontend', 'js')));
+app.use('/pages', express.static(path.join(__dirname, 'frontend', 'pages')));
+app.use(express.static(path.join(__dirname, 'frontend')));
+
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -81,11 +87,6 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api', classRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/teacher', teacherRoutes);
-
-app.use('/css', express.static(path.join(__dirname, 'frontend', 'css')));
-app.use('/js', express.static(path.join(__dirname, 'frontend', 'js')));
-app.use('/pages', express.static(path.join(__dirname, 'frontend', 'pages')));
-app.use(express.static(path.join(__dirname, 'frontend')));
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'pages', 'login.html'));
